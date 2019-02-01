@@ -28,6 +28,8 @@ public:
 private:
     void updateApp();
 
+    void getPass();
+
     void writeFile(QString fileName,QString name,QString pass,QString app);
 
 private slots:
@@ -39,11 +41,17 @@ private slots:
 
     void getSoftwareResult(QString);
 
+    void getPassResult(QString);
+
     void storeSoftwareResult(QString);
 
     void delSoftWareResult(QString);
 
+    void modifyPassResult(QString);
+
     void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
+
+    void on_addButton_4_clicked();
 
 signals:
     void winClose();
@@ -53,7 +61,7 @@ protected:
 
 private:
     Ui::AppManageDialog *ui;
-    bool isSuccess;
+    QString pass;
 };
 
 #endif // APPMANAGEDIALOG_H

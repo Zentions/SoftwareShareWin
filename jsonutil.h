@@ -26,6 +26,7 @@ public:
     static QVector<software*> ParseSoftwareResult(QString);
     static software ParseSingleSoftwareResult(QString);
     static QString ParseDelSoftwareResult(QString);
+    static QString ParseGetPassResult(QString);
 signals:
 
 public slots:

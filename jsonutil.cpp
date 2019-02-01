@@ -115,3 +115,19 @@ QString JsonUtil::ParseDelSoftwareResult(QString str)
     }
     else return nullptr;
 }
+ QString JsonUtil::ParseGetPassResult(QString str)
+ {
+     QByteArray byteArray = str.toLatin1();
+     QJsonParseError jsonError;
+     QJsonDocument doucment = QJsonDocument::fromJson(byteArray, &jsonError);  // 转化为 JSON 文档
+
+     //开始解析
+     QJsonObject object = doucment.object();  // 转化为对象
+     QJsonValue value = object.value("success");
+     if(value.toBool())
+     {
+         QJsonValue pass_value = object.value("_pass");
+         return pass_value.toString();
+     }
+     else return nullptr;
+ }

@@ -14,8 +14,12 @@ AppManageDialog::AppManageDialog(QWidget *parent) :
     ui->treeWidget->setColumnWidth(3,150);
     ui->userEdit->setText("share");
     ui->userEdit->setEnabled(false);
+    ui->label_5->setAlignment(Qt::AlignHCenter);
+    ui->label_5->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    ui->passEdit->setEchoMode(QLineEdit::Password);
     updateApp();
-
+    pass = nullptr;
+    getPass();
 }
 void AppManageDialog::updateApp()
 {
@@ -25,7 +29,14 @@ void AppManageDialog::updateApp()
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(getSoftwareResult(QString)));
     http->sendRequest("http://127.0.0.1:3000/getSoftware?"+req,NULL,false);
 }
-
+void AppManageDialog::getPass()
+{
+    HttpUtil * http = new HttpUtil;
+    QString req = "address="+MainWindow::address;
+    //qDebug()<<req;
+    connect(http, SIGNAL(httpFinished(QString)), this, SLOT(getPassResult(QString)));
+    http->sendRequest("http://127.0.0.1:3000/getUserPass?"+req,NULL,false);
+}
 AppManageDialog::~AppManageDialog()
 {
     delete ui;
@@ -77,7 +88,7 @@ void AppManageDialog::on_addButton_2_clicked()
         {
             QString name = ui->treeWidget->topLevelItem(i)->text(0).trimmed();
             QString start = ui->treeWidget->topLevelItem(i)->text(1).trimmed();
-            writeFile(name+".exp","yifei","123456",start);
+            writeFile(name+".exp","yifei",pass,start);
             StartAppThread *thread = new StartAppThread(name+".exp");
             thread->start();
             break;
@@ -101,6 +112,10 @@ void AppManageDialog::getSoftwareResult(QString str)
         subItem->setText(3,vec[i]->date);
         subItem->setCheckState(0,Qt::Unchecked);
     }
+}
+void AppManageDialog::getPassResult(QString str)
+{
+    pass = JsonUtil::ParseGetPassResult(str);
 }
 void AppManageDialog::storeSoftwareResult(QString str)
 {
@@ -170,5 +185,42 @@ void AppManageDialog::delSoftWareResult(QString str)
                     break;
                 }
             }
+    }
+}
+
+void AppManageDialog::on_addButton_4_clicked()
+{
+    QString newPass = ui->passEdit->text().trimmed();
+    if(newPass ==NULL)
+    {
+        ui->label_5->setStyleSheet("color:red;");
+        ui->label_5->setText("密码不能为空!");
+    }
+    else if(newPass.length() <6)
+    {
+        ui->label_5->setStyleSheet("color:red;");
+        ui->label_5->setText("密码长度应大于6!");
+    }
+    else
+    {
+        HttpUtil* http = new HttpUtil;
+        QString req = "address="+MainWindow::address+"&pass="+newPass;
+        //qDebug()<<req;
+        connect(http, SIGNAL(httpFinished(QString)), this, SLOT(modifyPassResult(QString)));
+        http->sendRequest("http://127.0.0.1:3000/modifyPass",req,true);
+    }
+}
+void AppManageDialog::modifyPassResult(QString str)
+{
+    bool success = JsonUtil::ParseSimpleResult(str);
+    if(success)
+    {
+        ui->label_5->setStyleSheet("color:blue;");
+        ui->label_5->setText("密码更改成功");
+    }
+    else
+    {
+        ui->label_5->setStyleSheet("color:red;");
+        ui->label_5->setText("密码更改失败");
     }
 }
