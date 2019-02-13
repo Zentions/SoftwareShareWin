@@ -30,18 +30,26 @@ SOURCES += \
     httputil.cpp \
     jsonutil.cpp \
     appmanagedialog.cpp \
-    startappthread.cpp
+    startappthread.cpp \
+    usesoftwareform.cpp \
+    serveritem.cpp \
+    userinfo.cpp
 
 HEADERS += \
         mainwindow.h \
     httputil.h \
     jsonutil.h \
     appmanagedialog.h \
-    startappthread.h
+    startappthread.h \
+    usesoftwareform.h \
+    serveritem.h \
+    userinfo.h
 
 FORMS += \
         mainwindow.ui \
-    appmanagedialog.ui
+    appmanagedialog.ui \
+    usesoftwareform.ui \
+    serveritem.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

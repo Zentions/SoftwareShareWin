@@ -1,5 +1,5 @@
 #include "jsonutil.h"
-
+#include "QDebug"
 JsonUtil::JsonUtil(QObject *parent) : QObject(parent)
 {
 
@@ -76,6 +76,31 @@ QVector<software*> JsonUtil::ParseSoftwareResult(QString str)
     }
     return software_array;
 }
+QVector<QString> JsonUtil::ParseShareUserResult(QString str)
+{
+    QVector<QString> AddressArray;
+    QJsonParseError jsonError;
+    QJsonDocument doucment = QJsonDocument::fromJson(str.toUtf8(), &jsonError);  // 转化为 JSON 文档
+    if (!doucment.isNull() && (jsonError.error == QJsonParseError::NoError))
+    {
+        QJsonObject object = doucment.object();  // 转化为对象
+        QJsonValue SuccValue = object.value("success");
+        if(SuccValue.toBool())
+        {
+            QJsonValue AddressValue = object.value("users");
+            QJsonArray array = AddressValue.toArray();
+            int nSize =array.size();
+            qDebug()<<nSize;
+            for(int i=0;i<nSize;++i)
+            {
+                qDebug()<<array[i].toString();
+                AddressArray.append(array[i].toString());
+             }
+        }
+
+    }
+    return AddressArray;
+}
 software JsonUtil::ParseSingleSoftwareResult(QString str)
 {
     software sw;
@@ -84,7 +109,7 @@ software JsonUtil::ParseSingleSoftwareResult(QString str)
     if (!doucment.isNull() && (jsonError.error == QJsonParseError::NoError))
     {
         QJsonObject object = doucment.object();  // 转化为对象
-        QJsonValue sw_success = object.value("success");//获取softwares对应的value数组
+        QJsonValue sw_success = object.value("success");
         if(sw_success.toBool())
         {
             QJsonValue sw_date = object.value("date");
@@ -131,3 +156,55 @@ QString JsonUtil::ParseDelSoftwareResult(QString str)
      }
      else return nullptr;
  }
+UserInfo JsonUtil::ParseshareUserInfoResult(QString str)
+{
+    UserInfo userInfo;
+    QJsonParseError jsonError;
+    QJsonDocument doucment = QJsonDocument::fromJson(str.toUtf8(), &jsonError);  // 转化为 JSON 文档
+    if (!doucment.isNull() && (jsonError.error == QJsonParseError::NoError))
+    {
+        QJsonObject object = doucment.object();  // 转化为对象
+        QJsonValue SuccValue = object.value("success");
+        if(SuccValue.toBool())
+        {
+            QJsonValue addressVal = object.value("address");
+            QJsonValue macVal = object.value("mac");
+            QJsonValue ipVal = object.value("ip");
+            QJsonValue passVal = object.value("pass");
+            QJsonValue scoreVal = object.value("score");
+            userInfo.setAddress(addressVal.toString());
+            userInfo.setIP(ipVal.toString());
+            userInfo.setMac(macVal.toString());
+            userInfo.setPass(passVal.toString());
+            userInfo.setScore(scoreVal.toString().toInt());
+            qDebug()<<userInfo.getScore();
+            //array
+            QJsonValue softwareValue = object.value("sws");
+            QJsonValue softwareVal = softwareValue.toObject().value("sw");
+            QJsonArray array = softwareVal.toArray();
+            int nSize =array.size();
+
+            for(int i=0;i<nSize;++i)
+            {
+                if(array[i].isObject())
+                {
+                    QVariantMap result = array[i].toVariant().toMap();
+                    QString name,start,date,score;
+                    name=result["name"].toString();
+                    start=result["start"].toString();
+                    date=result["date"].toString();
+                    score=result["score"].toString();
+                    software *infor=new software;
+                    infor->date= date;
+                    infor->name = name;
+                    infor->start = start;
+                    infor->score = score;
+                    userInfo.insetUserSoftwares(*infor);
+
+                }
+             }
+        }
+
+    }
+    return userInfo;
+}

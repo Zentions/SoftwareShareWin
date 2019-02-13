@@ -7,6 +7,8 @@
 #include "httputil.h"
 #include "jsonutil.h"
 #include "appmanagedialog.h"
+#include "usesoftwareform.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -64,6 +66,7 @@ private slots:
     void on_pushButton_15_clicked();
 
     void on_pushButton_7_clicked();
+
 
 private:
     Ui::MainWindow *ui;

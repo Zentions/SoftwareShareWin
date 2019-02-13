@@ -9,12 +9,8 @@
 #include <QJsonValue>
 #include <QVector>
 #include <QVariantMap>
-struct software{
-    QString date;
-    QString name;
-    QString score;
-    QString start;
-};
+#include "userinfo.h"
+
 class JsonUtil : public QObject
 {
     Q_OBJECT
@@ -27,6 +23,8 @@ public:
     static software ParseSingleSoftwareResult(QString);
     static QString ParseDelSoftwareResult(QString);
     static QString ParseGetPassResult(QString);
+    static QVector<QString> ParseShareUserResult(QString);
+    static UserInfo ParseshareUserInfoResult(QString);
 signals:
 
 public slots:

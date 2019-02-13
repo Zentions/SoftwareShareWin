@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->layoutWidget1->hide();
     ui->layoutWidget2->hide();
     ui->layoutWidget3->hide();
-    ui->widget->hide();
+    ui->layoutWidget4->hide();
     ui->lineEdit_2->setEchoMode(QLineEdit::Password);
     ui->lineEdit_3->setEchoMode(QLineEdit::Password);
     ui->lineEdit_4->setEchoMode(QLineEdit::Password);
@@ -89,18 +89,18 @@ void MainWindow::loginResult(QString str)
         if(result ==1)
         {
             ui->layoutWidget->hide();
-            ui->widget->setGeometry(QRect(60, 130, 311,100));
+            ui->layoutWidget4->setGeometry(QRect(60, 130, 311,100));
             ui->pushButton_7->setEnabled(false);
              ui->label_8->setText("");
-            ui->widget->show();
+            ui->layoutWidget4->show();
         }
         else
         {
             ui->layoutWidget->hide();
-            ui->widget->setGeometry(QRect(60, 130, 311,100));
+            ui->layoutWidget4->setGeometry(QRect(60, 130, 311,100));
             ui->pushButton_3->setEnabled(false);
             ui->pushButton_6->setEnabled(false);
-            ui->widget->show();
+            ui->layoutWidget4->show();
         }
     }
     else
@@ -160,14 +160,15 @@ void MainWindow::newAccountResult(QString str)
 
 void MainWindow::on_pushButton_6_clicked()
 {
-    ui->widget->hide();
+    ui->layoutWidget4->hide();
     ui->layoutWidget2->setGeometry(QRect(60, 130, 311,31));
     ui->layoutWidget2->show();
 }
 
 void MainWindow::on_pushButton_3_clicked()
 {
-
+    UseSoftWareForm *form = new UseSoftWareForm;
+    form->show();
 }
 
 void MainWindow::on_pushButton_10_clicked()
@@ -270,7 +271,7 @@ void MainWindow::winAppear()
 void MainWindow::on_pushButton_13_clicked()
 {
     ui->layoutWidget2->hide();
-    ui->widget->show();
+    ui->layoutWidget4->show();
 }
 
 void MainWindow::on_pushButton_15_clicked()
@@ -311,3 +312,4 @@ void MainWindow::registerResult(QString str)
         ui->label_8->setText("发生错误，请重试!");
     }
 }
+

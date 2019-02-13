@@ -1,0 +1,43 @@
+#ifndef USESOFTWAREFORM_H
+#define USESOFTWAREFORM_H
+
+#include <QWidget>
+#include "serveritem.h"
+#include "jsonutil.h"
+#include "httputil.h"
+#include <QTreeWidgetItem>
+#include <QMap>
+#include "userinfo.h"
+namespace Ui {
+class UseSoftWareForm;
+}
+
+class UseSoftWareForm : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit UseSoftWareForm(QWidget *parent = 0);
+    ~UseSoftWareForm();
+
+private slots:
+    void on_pushButton_5_clicked();
+
+    void shareUserResult(QString);
+
+    void on_treeWidget_itemExpanded(QTreeWidgetItem *item);
+
+    void shareUserInfoResultForTreeWidget(QString);
+
+    void on_pushButton_4_clicked();
+
+    void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
+
+private:
+    void queryShareUser(bool byName,QString name);
+    void queryShareUserInfo(QString address);
+    Ui::UseSoftWareForm *ui;
+    QMap<QString,QTreeWidgetItem*> AddressMap;
+};
+
+#endif // USESOFTWAREFORM_H
