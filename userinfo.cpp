@@ -69,3 +69,11 @@ QString UserInfo::getSoftwareNameByIndex(int i)
 {
     return this->UserSoftwares.at(i).name;
 }
+void UserInfo::setTimestap(int time)
+{
+    this->start_timestap = time;
+}
+int UserInfo::getTimestap()
+{
+    return start_timestap;
+}

@@ -24,7 +24,7 @@ AppManageDialog::AppManageDialog(QWidget *parent) :
 void AppManageDialog::updateApp()
 {
     HttpUtil * http = new HttpUtil;
-    QString req = "address="+MainWindow::address;
+    QString req = "address="+ParaUtil::address;
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(getSoftwareResult(QString)));
     http->sendRequest("http://127.0.0.1:3000/getSoftware?"+req,NULL,false);
@@ -32,7 +32,7 @@ void AppManageDialog::updateApp()
 void AppManageDialog::getPass()
 {
     HttpUtil * http = new HttpUtil;
-    QString req = "address="+MainWindow::address;
+    QString req = "address="+ParaUtil::address;
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(getPassResult(QString)));
     http->sendRequest("http://127.0.0.1:3000/getUserPass?"+req,NULL,false);
@@ -52,7 +52,7 @@ void AppManageDialog::on_addButton_clicked()
         QDateTime current_date_time =QDateTime::currentDateTime();
         QString current_date =current_date_time.toString("yyyy-MM-dd");
         HttpUtil* http = new HttpUtil;
-        QString req = "address="+MainWindow::address+"&name="+name+"&start="+path+"&date="+current_date;
+        QString req = "address="+ParaUtil::address+"&name="+name+"&start="+path+"&date="+current_date;
         //qDebug()<<req;
         connect(http, SIGNAL(httpFinished(QString)), this, SLOT(storeSoftwareResult(QString)));
         http->sendRequest("http://127.0.0.1:3000/storeSoftware",req,true);
@@ -68,7 +68,7 @@ void AppManageDialog::on_delButton_clicked()
         {
             QString name = ui->treeWidget->topLevelItem(i)->text(0).trimmed();
             HttpUtil* http = new HttpUtil;
-            QString req = "address="+MainWindow::address+"&name="+name;
+            QString req = "address="+ParaUtil::address+"&name="+name;
             //qDebug()<<req;
             connect(http, SIGNAL(httpFinished(QString)), this, SLOT(delSoftWareResult(QString)));
             http->sendRequest("http://127.0.0.1:3000/deleteSoftWare",req,true);
@@ -204,7 +204,7 @@ void AppManageDialog::on_addButton_4_clicked()
     else
     {
         HttpUtil* http = new HttpUtil;
-        QString req = "address="+MainWindow::address+"&pass="+newPass;
+        QString req = "address="+ParaUtil::address+"&pass="+newPass;
         //qDebug()<<req;
         connect(http, SIGNAL(httpFinished(QString)), this, SLOT(modifyPassResult(QString)));
         http->sendRequest("http://127.0.0.1:3000/modifyPass",req,true);

@@ -20,6 +20,7 @@ private:
     QString ip;
     QString pass;
     int score;
+    int start_timestap;
     QVector<software> UserSoftwares;
 public:
     UserInfo();
@@ -34,6 +35,8 @@ public:
     void setMac(QString);
     void setIP(QString);
     void setScore(int);
+    void setTimestap(int);
+    int getTimestap();
     QString getPass();
     void setPass(QString);
     int getSWLen();

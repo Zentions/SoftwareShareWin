@@ -7,11 +7,10 @@
 #include <QDialog>
 #include <QTreeWidgetItem>
 #include <QProcess>
-#include "mainwindow.h"
 #include "httputil.h"
 #include "jsonutil.h"
 #include "startappthread.h"
-
+#include "parautil.h"
 namespace Ui {
 class AppManageDialog;
 }

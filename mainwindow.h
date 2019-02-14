@@ -8,7 +8,7 @@
 #include "jsonutil.h"
 #include "appmanagedialog.h"
 #include "usesoftwareform.h"
-
+#include "parautil.h"
 namespace Ui {
 class MainWindow;
 }
@@ -20,11 +20,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    static QString address;
-
-    QList<QHostAddress> get_localmachine_ip();
-
-    QString gethostMac();
 
 private slots:
     void on_pushButton_clicked();

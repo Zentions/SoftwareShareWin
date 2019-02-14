@@ -33,7 +33,8 @@ SOURCES += \
     startappthread.cpp \
     usesoftwareform.cpp \
     serveritem.cpp \
-    userinfo.cpp
+    userinfo.cpp \
+    parautil.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,7 +44,8 @@ HEADERS += \
     startappthread.h \
     usesoftwareform.h \
     serveritem.h \
-    userinfo.h
+    userinfo.h \
+    parautil.h
 
 FORMS += \
         mainwindow.ui \

@@ -7,7 +7,10 @@
 #include "httputil.h"
 #include <QTreeWidgetItem>
 #include <QMap>
+#include <QDateTime>
+#include <QMessageBox>
 #include "userinfo.h"
+#include "parautil.h"
 namespace Ui {
 class UseSoftWareForm;
 }
@@ -29,15 +32,29 @@ private slots:
 
     void shareUserInfoResultForTreeWidget(QString);
 
+    void shareUserInfoResultForConnect(QString);
+
+    void connectServerResult(QString);
+
     void on_pushButton_4_clicked();
 
     void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
+
+    void on_pushButton_clicked();
+
+    void on_pushButton_2_clicked();
+
+    void on_pushButton_3_clicked();
 
 private:
     void queryShareUser(bool byName,QString name);
     void queryShareUserInfo(QString address);
     Ui::UseSoftWareForm *ui;
     QMap<QString,QTreeWidgetItem*> AddressMap;
+    QMap<QString,UserInfo> ConnectUsers;
+    QMap<QString,UserInfo> PendUsers;
+    QVector<QString> ConnectAddress;
+    int current;
 };
 
 #endif // USESOFTWAREFORM_H

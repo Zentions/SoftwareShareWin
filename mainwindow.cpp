@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //get_localmachine_ip();
     //gethostMac();
 }
-QString MainWindow::address = "0";
+
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -42,10 +42,10 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
 
-   address = ui->lineEdit->text();
+   ParaUtil::address = ui->lineEdit->text();
    QString pass = ui->lineEdit_2->text();
    HttpUtil * http0 = new HttpUtil;
-   QString req = "address="+address+"&pass="+pass;
+   QString req = "address="+ParaUtil::address+"&pass="+pass;
    //qDebug()<<req;
    connect(http0, SIGNAL(httpFinished(QString)), this, SLOT(loginResult(QString)));
    http0->sendRequest("http://127.0.0.1:3000/login",req,true);
@@ -185,7 +185,7 @@ void MainWindow::on_pushButton_9_clicked()
     //manage share(start or end)
     ui->layoutWidget2->hide();
     ui->layoutWidget3->setGeometry(QRect(10, 130, 421,91));
-    QList<QHostAddress> list = get_localmachine_ip();
+    QList<QHostAddress> list = ParaUtil::get_localmachine_ip();
     QHostAddress ip;
     ui->comboBox->clear();
     foreach (ip, list) {
@@ -201,54 +201,13 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
     qDebug()<<arg1;
     ip = ui->comboBox->currentText();
 }
-QList<QHostAddress> MainWindow::get_localmachine_ip()
-{
-    QString ipAddress;
-    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-    // use the first non-localhost IPv4 address
-    for (int i = 0; i < ipAddressesList.size(); ++i) {
-        if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
-            ipAddressesList.at(i).toIPv4Address()) {
-            ipAddress = ipAddressesList.at(i).toString();
-            qDebug()<<ipAddress;
-        }
-        else
-        {
-            ipAddressesList.removeAt(i);
-            i--;
-        }
-    }
-    // if we did not find one, use IPv4 localhost
-    if (ipAddressesList.isEmpty())
-    {
-        ipAddressesList.append(QHostAddress(QHostAddress::LocalHost));
-    }
-    return ipAddressesList;
-}
-QString MainWindow::gethostMac()
-{
-    QList<QNetworkInterface> nets = QNetworkInterface::allInterfaces();// 获取所有网络接口列表
-    int nCnt = nets.count();
-    QString strMacAddr = "";
-    for(int i = 0; i < nCnt; i ++)
-    {
-        // 如果此网络接口被激活并且正在运行并且不是回环地址，则就是我们需要找的Mac地址
-        if(nets[i].flags().testFlag(QNetworkInterface::IsUp) && nets[i].flags().testFlag(QNetworkInterface::IsRunning)
-                && !nets[i].flags().testFlag(QNetworkInterface::IsLoopBack))
-        {
-            strMacAddr = nets[i].hardwareAddress();
-            qDebug()<<strMacAddr;
-            //break;
-        }
-    }
-    return strMacAddr;
-}
+
 void MainWindow::on_pushButton_11_clicked()
 {
     //start share
-    QString mac = gethostMac();
+    QString mac = ParaUtil::gethostMac();
     HttpUtil * http = new HttpUtil;
-    QString req = "address="+address+"&mac="+mac+"&ip="+ip;
+    QString req = "address="+ParaUtil::address+"&mac="+mac+"&ip="+ip;
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(startServiecResult(QString)));
     http->sendRequest("http://127.0.0.1:3000/startService",req,true);
@@ -258,7 +217,7 @@ void MainWindow::on_pushButton_12_clicked()
 {
     //end share
     HttpUtil * http = new HttpUtil;
-    QString req = "address="+address;
+    QString req = "address="+ParaUtil::address;
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(endServiecResult(QString)));
     http->sendRequest("http://127.0.0.1:3000/endService",req,true);
@@ -292,7 +251,7 @@ void MainWindow::on_pushButton_7_clicked()
 {
     //register
     HttpUtil * http = new HttpUtil;
-    QString req = "address="+address;
+    QString req = "address="+ParaUtil::address;
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(registerResult(QString)));
     http->sendRequest("http://127.0.0.1:3000/register",req,true);

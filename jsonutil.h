@@ -25,6 +25,7 @@ public:
     static QString ParseGetPassResult(QString);
     static QVector<QString> ParseShareUserResult(QString);
     static UserInfo ParseshareUserInfoResult(QString);
+    static QString ParseConnectServerResult(QString);
 signals:
 
 public slots:
