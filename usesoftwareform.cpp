@@ -14,6 +14,7 @@ UseSoftWareForm::UseSoftWareForm(QWidget *parent) :
     ui->lineEdit->setEnabled(false);
     ui->pushButton_2->setEnabled(false);
     ui->pushButton_3->setEnabled(false);
+
 }
 
 UseSoftWareForm::~UseSoftWareForm()
@@ -305,14 +306,7 @@ void UseSoftWareForm::on_pushButton_3_clicked()
     ui->label->setText("当前第"+QString::number(current/2+1)+"页");
 }
 
-void UseSoftWareForm::on_pushButton_6_clicked()
-{
-    QLayoutItem *layoutItem = ui->gridLayout->itemAt(0);
-    QWidget* w0 = layoutItem->widget();
-     ui->gridLayout->removeWidget(w0);
-     delete w0;
 
-}
 void UseSoftWareForm::setConnectEnd(QString address)
 {
     ConnectUsers[address].setEnd(true);

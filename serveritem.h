@@ -4,6 +4,7 @@
 #include <QFrame>
 #include "userinfo.h"
 #include <QImage>
+#include <QTimer>
 #include "httputil.h"
 #include "jsonutil.h"
 #include "parautil.h"
