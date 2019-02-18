@@ -17,7 +17,7 @@ class JsonUtil : public QObject
 public:
     explicit JsonUtil(QObject *parent = nullptr);
     static bool ParseSimpleResult(QString);
-    static int ParseIsRegisterResult(QString);
+    static int ParseSuccessAndBoolResult(QString,QString);
     static QString ParseNewAccountResult(QString);
     static QVector<software*> ParseSoftwareResult(QString);
     static software ParseSingleSoftwareResult(QString);

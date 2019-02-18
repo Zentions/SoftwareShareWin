@@ -88,7 +88,7 @@ void AppManageDialog::on_addButton_2_clicked()
         {
             QString name = ui->treeWidget->topLevelItem(i)->text(0).trimmed();
             QString start = ui->treeWidget->topLevelItem(i)->text(1).trimmed();
-            writeFile(name+".exp","yifei",pass,start);
+            ParaUtil::writeFile(name+".exp","yifei","127.0.0.1",pass,start);
             StartAppThread *thread = new StartAppThread(name+".exp");
             thread->start();
             break;
@@ -145,30 +145,7 @@ void AppManageDialog::on_treeWidget_itemChanged(QTreeWidgetItem *item, int colum
     }
 
 }
-void AppManageDialog::writeFile(QString fileName,QString name,QString pass,QString app)
-{
-    QFile file(fileName);
-    // Trying to open in WriteOnly and Text mode
-    if(!file.open(QFile::WriteOnly | QFile::Text))
-    {
-        qDebug() << "Could not open file for writing";
-        return;
-    }
-    QTextStream out(&file);
-    out << "#!/usr/bin/expect\n";
-    out << "spawn ssh -X "+name+"@127.0.0.1\n";
-    out << "expect {\n";
-    out << "\"yes/no\" { send \"yes\\r\"; exp_continue}\n";
-    out << "\"password:\" { send \""+pass+"\\r\" }\n";
-    out << "}\n";
-    out << "expect \"*#\"\n";
-    out << "send \""+app+"\\r\"\n";
-    out << "set timeout -1\n";
-    out << "send \"exit\\r\"\n";
-    out << "expect eof\n";
-    file.flush();
-    file.close();
-}
+
 void AppManageDialog::delSoftWareResult(QString str)
 {
     QString name = JsonUtil::ParseDelSoftwareResult(str);

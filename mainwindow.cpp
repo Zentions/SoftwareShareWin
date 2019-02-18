@@ -83,7 +83,7 @@ void MainWindow::on_pushButton_5_clicked()
 }
 void MainWindow::loginResult(QString str)
 {
-    int result = JsonUtil::ParseIsRegisterResult(str);
+    int result = JsonUtil::ParseSuccessAndBoolResult(str,"Register");
     if(result !=0 )
     {
         if(result ==1)

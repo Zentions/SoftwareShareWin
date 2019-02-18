@@ -47,3 +47,27 @@ QString ParaUtil::gethostMac()
     }
     return strMacAddr;
 }
+void ParaUtil::writeFile(QString fileName,QString name,QString ip,QString pass,QString app)
+{
+    QFile file(fileName);
+    // Trying to open in WriteOnly and Text mode
+    if(!file.open(QFile::WriteOnly | QFile::Text))
+    {
+        qDebug() << "Could not open file for writing";
+        return;
+    }
+    QTextStream out(&file);
+    out << "#!/usr/bin/expect\n";
+    out << "spawn ssh -X "+name+"@"+ip+"\n";
+    out << "expect {\n";
+    out << "\"yes/no\" { send \"yes\\r\"; exp_continue}\n";
+    out << "\"password:\" { send \""+pass+"\\r\" }\n";
+    out << "}\n";
+    out << "expect \"*#\"\n";
+    out << "send \""+app+"\\r\"\n";
+    out << "set timeout -1\n";
+    out << "send \"exit\\r\"\n";
+    out << "expect eof\n";
+    file.flush();
+    file.close();
+}

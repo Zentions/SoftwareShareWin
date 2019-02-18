@@ -2,8 +2,8 @@
 #define USERINFO_H
 
 #include <QString>
-#include <QVector>
-
+#include <QMap>
+#include <QList>
 
 struct software{
     QString date;
@@ -21,12 +21,13 @@ private:
     QString pass;
     int score;
     int start_timestap;
-    QVector<software> UserSoftwares;
+    QMap<QString,software> UserSoftwares;
+    bool end;
 public:
     UserInfo();
     UserInfo(QString address,QString mac,QString ip,QString pass,uint score);
     void insetUserSoftwares(software);
-    QVector<software> getUserSoftwares();
+    QMap<QString,software> getUserSoftwares();
     QString getAddress();
     QString getMac();
     QString getIp();
@@ -38,9 +39,11 @@ public:
     void setTimestap(int);
     int getTimestap();
     QString getPass();
+    bool isEnd();
+    void setEnd(bool);
     void setPass(QString);
     int getSWLen();
-    QString getSoftwareNameByIndex(int i);
+    QList<QString> getSoftwareName();
 };
 
 #endif // USERINFO_H

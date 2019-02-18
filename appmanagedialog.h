@@ -29,8 +29,6 @@ private:
 
     void getPass();
 
-    void writeFile(QString fileName,QString name,QString pass,QString app);
-
 private slots:
     void on_addButton_clicked();
 

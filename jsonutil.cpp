@@ -15,7 +15,7 @@ bool JsonUtil::ParseSimpleResult(QString str)
     QJsonValue Value = object.value("success");
     return Value.toBool();
 }
-int JsonUtil::ParseIsRegisterResult(QString str)
+int JsonUtil::ParseSuccessAndBoolResult(QString str,QString key)
 {
     QByteArray byteArray = str.toLatin1();
     QJsonParseError jsonError;
@@ -24,7 +24,7 @@ int JsonUtil::ParseIsRegisterResult(QString str)
     //开始解析
     QJsonObject object = doucment.object();  // 转化为对象
     QJsonValue succ_value = object.value("success");
-    QJsonValue re_value = object.value("Register");
+    QJsonValue re_value = object.value(key);
     if(!succ_value.toBool()) return 0;
     else
     {

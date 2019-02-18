@@ -11,6 +11,7 @@ ServerItem::ServerItem(QFrame *parent) :
     ui->pushButton->setEnabled(false);
     ui->pushButton_2->setEnabled(false);
     ui->pushButton_3->setEnabled(false);
+    ui->label_10->setText("0 min");
     if(image.load("./photo/unknown.png"))
     {
         QPixmap pix = QPixmap::fromImage(image);
@@ -25,6 +26,7 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
 {
     ui->setupUi(this);
     this->setStyleSheet("ServerItem{border: 2px solid #FF00FF; border-radius: 5px;};");
+   // qDebug()<<userInfo;
     this->userInfo = userInfo;
     ui->label_2->setText(userInfo.getAddress());
     ui->label_2->setWordWrap(true);
@@ -32,11 +34,22 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
     ui->label_2->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->label_4->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->label_6->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    ui->label_8->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->label_4->setText(userInfo.getIp());
     ui->label_6->setText(userInfo.getMac());
-    for(int i=0;i<userInfo.getSWLen();i++)
+    ui->pushButton_3->setEnabled(false);
+    if(userInfo.isEnd())
     {
-        QListWidgetItem *item = new QListWidgetItem(userInfo.getSoftwareNameByIndex(i), ui->listWidget);
+        qDebug()<<userInfo.isEnd();
+        ui->pushButton->setEnabled(false);
+        ui->pushButton_2->setEnabled(false);
+        ui->pushButton_3->setEnabled(false);
+        ui->label_8->setText("共享结束");
+    }
+    QList<QString> list = userInfo.getSoftwareName();
+    for(int i=0;i<list.size();i++)
+    {
+        QListWidgetItem *item = new QListWidgetItem(list.at(i), ui->listWidget);
     }
     this->index = index;
     QString path = "./photo/"+QString::number(index % 4)+".png";
@@ -47,6 +60,8 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
         ui->label_7->setAlignment(Qt::AlignCenter);
         ui->label_7->setPixmap(fitpixmap);
     }
+    this->use = false;
+    ui->label_10->setText("0 min");
 }
 ServerItem::~ServerItem()
 {
@@ -56,6 +71,15 @@ ServerItem::~ServerItem()
 
 void ServerItem::on_pushButton_2_clicked()
 {
+    for(int i=0;i<threads.size();i++)
+    {
+        if(threads.at(i)->isRunning())
+        {
+            ui->label_8->setText("请结束应用");
+            return;
+        }
+
+    }
     QDateTime time = QDateTime::currentDateTime();   //获取当前时间
     int endTime = time.toTime_t();   //将当前时间转为时间戳
     int total = endTime - userInfo.getTimestap();
@@ -66,6 +90,62 @@ void ServerItem::on_pushButton_2_clicked()
     QString req = "money="+QString::number(money)+"&total_time="+QString::number(total)+"&start_timestap="+QString::number(userInfo.getTimestap())
             +"&end_timestap="+QString::number(endTime)+"&client_address="+ParaUtil::address;
     qDebug()<<req;
-   // connect(http, SIGNAL(httpFinished(QString)), this, SLOT(newAccountResult(QString)));
+    connect(http, SIGNAL(httpFinished(QString)), this, SLOT(endStoreRecordResult(QString)));
     http->sendRequest("http://127.0.0.1:3000/endStoreRecord",req,true);
+}
+void ServerItem::endStoreRecordResult(QString str)
+{
+    bool result = JsonUtil::ParseSimpleResult(str);
+    if(result)
+    {
+        ui->pushButton->setEnabled(false);
+        ui->pushButton_2->setEnabled(false);
+        ui->pushButton_3->setEnabled(false);
+        ui->label_8->setText("共享结束");
+        userInfo.setEnd(true);
+        connectEnd(userInfo.getAddress());
+    }
+    else
+    {
+        ui->label_8->setText("共享结束异常");
+    }
+}
+
+void ServerItem::on_pushButton_clicked()
+{
+    HttpUtil * http = new HttpUtil;
+    QString req = "key="+userInfo.getAddress()+QString::number(userInfo.getTimestap());
+    connect(http, SIGNAL(httpFinished(QString)), this, SLOT(canUseResult(QString)));
+    http->sendRequest("http://127.0.0.1:3000/canUseNow?"+req,NULL,false);
+}
+void ServerItem::canUseResult(QString str)
+{
+    int result = JsonUtil::ParseSuccessAndBoolResult(str,"use");
+    if(result==0)
+    {
+        ui->label_8->setText("服务异常");
+    }
+    else if(result==1)
+    {
+        use = true;
+        ui->pushButton_3->setEnabled(true);
+        ui->label_8->setText("欢迎使用");
+    }
+    else
+    {
+        ui->label_8->setText("请等待交易确认");
+    }
+}
+
+void ServerItem::on_pushButton_3_clicked()
+{
+    if(ui->listWidget->currentItem()!=NULL)
+    {
+        QString name = ui->listWidget->currentItem()->text();
+        software softw = userInfo.getUserSoftwares().value(name);
+        ParaUtil::writeFile(name+".exp","yifei",userInfo.getIp(),userInfo.getPass(),softw.start);
+        StartAppThread *thread = new StartAppThread(name+".exp");
+        threads.append(thread);
+        thread->start();
+    }
 }

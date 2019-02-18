@@ -8,16 +8,17 @@ UserInfo::UserInfo(QString address,QString mac,QString ip,QString pass,uint scor
     this->ip = ip;
     this->pass = pass;
     this->score = score;
+    this->end = false;
 }
 UserInfo::UserInfo()
 {
-
+    this->end = false;
 }
 void UserInfo::insetUserSoftwares(software sw)
 {
-    UserSoftwares.append(sw);
+    UserSoftwares.insert(sw.name,sw);
 }
-QVector<software> UserInfo::getUserSoftwares()
+QMap<QString,software> UserInfo::getUserSoftwares()
 {
     return UserSoftwares;
 }
@@ -65,9 +66,9 @@ int UserInfo::getSWLen()
 {
     return this->UserSoftwares.size();
 }
-QString UserInfo::getSoftwareNameByIndex(int i)
+QList<QString> UserInfo::getSoftwareName()
 {
-    return this->UserSoftwares.at(i).name;
+    return this->UserSoftwares.keys();
 }
 void UserInfo::setTimestap(int time)
 {
@@ -76,4 +77,12 @@ void UserInfo::setTimestap(int time)
 int UserInfo::getTimestap()
 {
     return start_timestap;
+}
+bool UserInfo::isEnd()
+{
+    return end;
+}
+void UserInfo::setEnd(bool end)
+{
+    this->end = end;
 }

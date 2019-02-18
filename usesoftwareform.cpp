@@ -12,6 +12,8 @@ UseSoftWareForm::UseSoftWareForm(QWidget *parent) :
 //    ui->gridLayout->addWidget(item1,0,1,1,-1);
     queryShareUser(false,NULL);
     ui->lineEdit->setEnabled(false);
+    ui->pushButton_2->setEnabled(false);
+    ui->pushButton_3->setEnabled(false);
 }
 
 UseSoftWareForm::~UseSoftWareForm()
@@ -94,12 +96,12 @@ void UseSoftWareForm::shareUserInfoResultForTreeWidget(QString str)
     scoreItem->setText(0,QString::number(userInfo.getScore()));
     QTreeWidgetItem* softwareItem = new QTreeWidgetItem(item);
     softwareItem->setText(0,"共享软件列表");
-    for(int i=0;i<userInfo.getSWLen();i++)
+    QList<QString> list = userInfo.getSoftwareName();
+    for(int i=0;i<list.size();i++)
     {
         QTreeWidgetItem* swItem = new QTreeWidgetItem(softwareItem);
-        swItem->setText(0,userInfo.getSoftwareNameByIndex(i));
+        swItem->setText(0,list.at(i));
     }
-
 }
 
 void UseSoftWareForm::on_pushButton_4_clicked()
@@ -181,8 +183,10 @@ void UseSoftWareForm::connectServerResult(QString str)
         ConnectAddress.append(address);
         if(ConnectAddress.size()%2==0)
         {
+
             current = ConnectAddress.size() -2;
-            ServerItem* item = new ServerItem(userInfo,ConnectUsers.size());
+            ServerItem* item = new ServerItem(userInfo,ConnectUsers.size()-1);
+            connect(item, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
             QWidget *w = ui->gridLayout->itemAt(1)->widget();
             ui->gridLayout->removeWidget(w);
             delete w;
@@ -190,28 +194,33 @@ void UseSoftWareForm::connectServerResult(QString str)
         }
         else
         {
+            qDebug()<<1234;
             current = ConnectAddress.size()-1;
-            QLayoutItem *w0 = ui->gridLayout->itemAt(0);
-            if(w0!=NULL)
+            QLayoutItem *layoutItem0 = ui->gridLayout->itemAt(0);
+            if(layoutItem0!=NULL)
             {
-                ui->gridLayout->removeWidget(w0->widget());
-                delete w0->widget();
+                QWidget* w0 = layoutItem0->widget();
+                ui->gridLayout->removeWidget(w0);
+                delete w0;
             }
-            QLayoutItem *w1 = ui->gridLayout->itemAt(1);
-            if(w1!=NULL)
+            QLayoutItem *layoutItem1 = ui->gridLayout->itemAt(0);
+            if(layoutItem1!=NULL)
             {
-                ui->gridLayout->removeWidget(w1->widget());
-                delete w1->widget();
+                QWidget* w1 = layoutItem1->widget();
+                ui->gridLayout->removeWidget(w1);
+                delete w1;
             }
-            ServerItem* item0 = new ServerItem(userInfo,ConnectUsers.size());
+            ServerItem* item0 = new ServerItem(userInfo,ConnectUsers.size()-1);
+            connect(item0, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
             ServerItem* item1 = new ServerItem;
             ui->gridLayout->addWidget(item0,0,0,1,-1);
             ui->gridLayout->addWidget(item1,0,1,1,-1);
         }
         ui->pushButton_3->setEnabled(false);
         if(current==0) ui->pushButton_2->setEnabled(false);
+        else ui->pushButton_2->setEnabled(true);
         ui->label_2->setText("共"+QString::number((ConnectUsers.size()+1)/2)+"页");
-        ui->label->setText("当前第"+QString::number(current+1)+"页");
+        ui->label->setText("当前第"+QString::number(current/2+1)+"页");
     }
     else
     {
@@ -222,10 +231,89 @@ void UseSoftWareForm::connectServerResult(QString str)
 
 void UseSoftWareForm::on_pushButton_2_clicked()
 {
-
+    QLayoutItem *layoutItem0 = ui->gridLayout->itemAt(0);
+    if(layoutItem0!=NULL)
+    {
+        QWidget* w0 = layoutItem0->widget();
+        ui->gridLayout->removeWidget(w0);
+        delete w0;
+    }
+    QLayoutItem *layoutItem1 = ui->gridLayout->itemAt(0);
+    if(layoutItem1!=NULL)
+    {
+        QWidget* w1 = layoutItem1->widget();
+        ui->gridLayout->removeWidget(w1);
+        delete w1;
+    }
+    QString address1 = ConnectAddress[current-2];
+    QString address2 = ConnectAddress[current-1];
+    ServerItem* item1 = new ServerItem(ConnectUsers[address1],current-2);
+    ServerItem* item2 = new ServerItem(ConnectUsers[address2],current-1);
+    connect(item1, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
+    connect(item2, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
+    current = current -2;
+    ui->gridLayout->addWidget(item1,0,0,1,-1);
+    ui->gridLayout->addWidget(item2,0,1,1,-1);
+    ui->pushButton_3->setEnabled(true);
+    if(current==0) ui->pushButton_2->setEnabled(false);
+    else ui->pushButton_2->setEnabled(true);
+    ui->label_2->setText("共"+QString::number((ConnectUsers.size()+1)/2)+"页");
+    ui->label->setText("当前第"+QString::number(current/2+1)+"页");
 }
 
 void UseSoftWareForm::on_pushButton_3_clicked()
 {
+    QLayoutItem *layoutItem0 = ui->gridLayout->itemAt(0);
+    if(layoutItem0!=NULL)
+    {
+        QWidget* w0 = layoutItem0->widget();
+        ui->gridLayout->removeWidget(w0);
+        delete w0;
+    }
+    QLayoutItem *layoutItem1 = ui->gridLayout->itemAt(0);
+    if(layoutItem1!=NULL)
+    {
+        QWidget* w1 = layoutItem1->widget();
+        ui->gridLayout->removeWidget(w1);
+        delete w1;
+    }
+    current = current +2;
+    if(ConnectUsers.size()-current>=2)
+    {
+        QString address1 = ConnectAddress[current];
+        QString address2 = ConnectAddress[current+1];
+        ServerItem* item1 = new ServerItem(ConnectUsers[address1],current);
+        ServerItem* item2 = new ServerItem(ConnectUsers[address2],current+1);
+        connect(item1, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
+        connect(item2, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
+        ui->gridLayout->addWidget(item1,0,0,1,-1);
+        ui->gridLayout->addWidget(item2,0,1,1,-1);
+    }
+    else
+    {
+        QString address = ConnectAddress[current];
+        ServerItem* item0 = new ServerItem(ConnectUsers[address],current);
+        connect(item0, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
+        ServerItem* item1 = new ServerItem;
+        ui->gridLayout->addWidget(item0,0,0,1,-1);
+        ui->gridLayout->addWidget(item1,0,1,1,-1);
+    }
+    ui->pushButton_2->setEnabled(true);
+    if(ConnectUsers.size()-current<=2) ui->pushButton_3->setEnabled(false);
+    else ui->pushButton_3->setEnabled(true);
+    ui->label_2->setText("共"+QString::number((ConnectUsers.size()+1)/2)+"页");
+    ui->label->setText("当前第"+QString::number(current/2+1)+"页");
+}
 
+void UseSoftWareForm::on_pushButton_6_clicked()
+{
+    QLayoutItem *layoutItem = ui->gridLayout->itemAt(0);
+    QWidget* w0 = layoutItem->widget();
+     ui->gridLayout->removeWidget(w0);
+     delete w0;
+
+}
+void UseSoftWareForm::setConnectEnd(QString address)
+{
+    ConnectUsers[address].setEnd(true);
 }
