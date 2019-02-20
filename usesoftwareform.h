@@ -46,15 +46,13 @@ private slots:
 
     void on_pushButton_3_clicked();
 
-    void setConnectEnd(QString);
-
 
 private:
     void queryShareUser(bool byName,QString name);
     void queryShareUserInfo(QString address);
     Ui::UseSoftWareForm *ui;
     QMap<QString,QTreeWidgetItem*> AddressMap;
-    QMap<QString,UserInfo> ConnectUsers;
+    QMap<QString,ServerItem*> ConnectUsers;
     QMap<QString,UserInfo> PendUsers;
     QVector<QString> ConnectAddress;
     int current;

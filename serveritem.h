@@ -19,8 +19,7 @@ class ServerItem : public QFrame
 {
     Q_OBJECT
 
-signals:
-    void connectEnd(QString);
+
 public:
     explicit ServerItem(UserInfo userInfo,int index,QFrame *parent = 0);
     explicit ServerItem(QFrame *parent = 0);
@@ -37,6 +36,8 @@ private slots:
 
     void on_pushButton_3_clicked();
 
+    void handleTimeout();
+
 private:
     Ui::ServerItem *ui;
     QImage image;
@@ -44,6 +45,8 @@ private:
     int index;
     bool use;
     QVector<StartAppThread*> threads;
+    QTimer* m_pTimer;
+    int time;
 };
 
 #endif // SERVERITEM_H

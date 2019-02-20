@@ -124,12 +124,17 @@ void UseSoftWareForm::on_treeWidget_itemChanged(QTreeWidgetItem *item, int colum
        {
            QString address  = item->text(0);
            ui->lineEdit->setText(address);
-       }
-       else
-       {
-            ui->lineEdit->setText("");
+           int count = ui->treeWidget->topLevelItemCount();
+           for(int i=0;i<count;i++)
+           {
+               if(item != ui->treeWidget->topLevelItem(i))
+               {
+                   ui->treeWidget->topLevelItem(i)->setCheckState(0,Qt::Unchecked);
+               }
+           }
        }
    }
+
 }
 
 void UseSoftWareForm::on_pushButton_clicked()
@@ -180,18 +185,18 @@ void UseSoftWareForm::connectServerResult(QString str)
     if(address != nullptr)
     {
         UserInfo userInfo = PendUsers.take(address);
-        ConnectUsers.insert(address,userInfo);
+        //ConnectUsers.insert(address,userInfo);
         ConnectAddress.append(address);
         if(ConnectAddress.size()%2==0)
         {
 
             current = ConnectAddress.size() -2;
-            ServerItem* item = new ServerItem(userInfo,ConnectUsers.size()-1);
-            connect(item, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
+            ServerItem* item = new ServerItem(userInfo,ConnectAddress.size()-1);
             QWidget *w = ui->gridLayout->itemAt(1)->widget();
             ui->gridLayout->removeWidget(w);
             delete w;
             ui->gridLayout->addWidget(item,0,1,1,-1);
+            ConnectUsers.insert(address,item);
         }
         else
         {
@@ -202,20 +207,20 @@ void UseSoftWareForm::connectServerResult(QString str)
             {
                 QWidget* w0 = layoutItem0->widget();
                 ui->gridLayout->removeWidget(w0);
-                delete w0;
+                w0->setParent(NULL);
             }
             QLayoutItem *layoutItem1 = ui->gridLayout->itemAt(0);
             if(layoutItem1!=NULL)
             {
                 QWidget* w1 = layoutItem1->widget();
                 ui->gridLayout->removeWidget(w1);
-                delete w1;
+                w1->setParent(NULL);
             }
-            ServerItem* item0 = new ServerItem(userInfo,ConnectUsers.size()-1);
-            connect(item0, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
+            ServerItem* item0 = new ServerItem(userInfo,ConnectAddress.size()-1);
             ServerItem* item1 = new ServerItem;
             ui->gridLayout->addWidget(item0,0,0,1,-1);
             ui->gridLayout->addWidget(item1,0,1,1,-1);
+            ConnectUsers.insert(address,item0);
         }
         ui->pushButton_3->setEnabled(false);
         if(current==0) ui->pushButton_2->setEnabled(false);
@@ -237,21 +242,19 @@ void UseSoftWareForm::on_pushButton_2_clicked()
     {
         QWidget* w0 = layoutItem0->widget();
         ui->gridLayout->removeWidget(w0);
-        delete w0;
+        w0->setParent(NULL);
     }
     QLayoutItem *layoutItem1 = ui->gridLayout->itemAt(0);
     if(layoutItem1!=NULL)
     {
         QWidget* w1 = layoutItem1->widget();
         ui->gridLayout->removeWidget(w1);
-        delete w1;
+        w1->setParent(NULL);
     }
     QString address1 = ConnectAddress[current-2];
     QString address2 = ConnectAddress[current-1];
-    ServerItem* item1 = new ServerItem(ConnectUsers[address1],current-2);
-    ServerItem* item2 = new ServerItem(ConnectUsers[address2],current-1);
-    connect(item1, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
-    connect(item2, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
+    ServerItem* item1 = ConnectUsers[address1];
+    ServerItem* item2 = ConnectUsers[address2];
     current = current -2;
     ui->gridLayout->addWidget(item1,0,0,1,-1);
     ui->gridLayout->addWidget(item2,0,1,1,-1);
@@ -269,32 +272,29 @@ void UseSoftWareForm::on_pushButton_3_clicked()
     {
         QWidget* w0 = layoutItem0->widget();
         ui->gridLayout->removeWidget(w0);
-        delete w0;
+        w0->setParent(NULL);
     }
     QLayoutItem *layoutItem1 = ui->gridLayout->itemAt(0);
     if(layoutItem1!=NULL)
     {
         QWidget* w1 = layoutItem1->widget();
         ui->gridLayout->removeWidget(w1);
-        delete w1;
+        w1->setParent(NULL);
     }
     current = current +2;
     if(ConnectUsers.size()-current>=2)
     {
         QString address1 = ConnectAddress[current];
         QString address2 = ConnectAddress[current+1];
-        ServerItem* item1 = new ServerItem(ConnectUsers[address1],current);
-        ServerItem* item2 = new ServerItem(ConnectUsers[address2],current+1);
-        connect(item1, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
-        connect(item2, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
+        ServerItem* item1 = ConnectUsers[address1];
+        ServerItem* item2 = ConnectUsers[address2];
         ui->gridLayout->addWidget(item1,0,0,1,-1);
         ui->gridLayout->addWidget(item2,0,1,1,-1);
     }
     else
     {
         QString address = ConnectAddress[current];
-        ServerItem* item0 = new ServerItem(ConnectUsers[address],current);
-        connect(item0, SIGNAL(connectEnd(QString)), this, SLOT(setConnectEnd(QString)));
+        ServerItem* item0 = ConnectUsers[address];
         ServerItem* item1 = new ServerItem;
         ui->gridLayout->addWidget(item0,0,0,1,-1);
         ui->gridLayout->addWidget(item1,0,1,1,-1);
@@ -306,8 +306,3 @@ void UseSoftWareForm::on_pushButton_3_clicked()
     ui->label->setText("当前第"+QString::number(current/2+1)+"页");
 }
 
-
-void UseSoftWareForm::setConnectEnd(QString address)
-{
-    ConnectUsers[address].setEnd(true);
-}

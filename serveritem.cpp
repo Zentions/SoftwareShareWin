@@ -26,6 +26,12 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
 {
     ui->setupUi(this);
     this->setStyleSheet("ServerItem{border: 2px solid #FF00FF; border-radius: 5px;};");
+    ui->listWidget->setStyleSheet("QListWidget{border:1px solid gray; color:black;background-image: url(5.png)}"
+                                   "QListWidget::Item{padding-top:10px; padding-bottom:10px; }"
+                                   "QListWidget::Item:hover{background:skyblue; }"
+                                   "QListWidget::item:selected{background:lightgray; color:red; }"
+                                   "QListWidget::item:selected:!active{border-width:0px; background:lightgreen; }"
+                                   );
    // qDebug()<<userInfo;
     this->userInfo = userInfo;
     ui->label_2->setText(userInfo.getAddress());
@@ -62,6 +68,10 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
     }
     this->use = false;
     ui->label_10->setText("0 min");
+    this->time = 0;
+    m_pTimer = new QTimer(this);
+    connect(m_pTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+    m_pTimer->start(60000);
 }
 ServerItem::~ServerItem()
 {
@@ -88,7 +98,7 @@ void ServerItem::on_pushButton_2_clicked()
     qDebug()<<money;
     HttpUtil * http = new HttpUtil;
     QString req = "money="+QString::number(money)+"&total_time="+QString::number(total)+"&start_timestap="+QString::number(userInfo.getTimestap())
-            +"&end_timestap="+QString::number(endTime)+"&client_address="+ParaUtil::address;
+            +"&end_timestap="+QString::number(endTime)+"&client_address="+ParaUtil::address+"&server_address="+userInfo.getAddress();
     qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(endStoreRecordResult(QString)));
     http->sendRequest("http://127.0.0.1:3000/endStoreRecord",req,true);
@@ -103,7 +113,6 @@ void ServerItem::endStoreRecordResult(QString str)
         ui->pushButton_3->setEnabled(false);
         ui->label_8->setText("共享结束");
         userInfo.setEnd(true);
-        connectEnd(userInfo.getAddress());
     }
     else
     {
@@ -148,4 +157,9 @@ void ServerItem::on_pushButton_3_clicked()
         threads.append(thread);
         thread->start();
     }
+}
+void ServerItem::handleTimeout()
+{
+    this->time++;
+    ui->label_10->setText(QString::number(time)+" min");
 }
