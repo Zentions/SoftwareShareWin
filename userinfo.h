@@ -19,6 +19,7 @@ private:
     QString mac;
     QString ip;
     QString pass;
+    double money;
     int score;
     int start_timestap;
     QMap<QString,software> UserSoftwares;
@@ -43,6 +44,8 @@ public:
     void setEnd(bool);
     void setPass(QString);
     int getSWLen();
+    double getMoney();
+    void setMoney(double);
     QList<QString> getSoftwareName();
 };
 

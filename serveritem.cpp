@@ -32,7 +32,8 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
                                    "QListWidget::item:selected{background:lightgray; color:red; }"
                                    "QListWidget::item:selected:!active{border-width:0px; background:lightgreen; }"
                                    );
-   // qDebug()<<userInfo;
+
+    ui->label_8->setAlignment(Qt::AlignHCenter);
     this->userInfo = userInfo;
     ui->label_2->setText(userInfo.getAddress());
     ui->label_2->setWordWrap(true);
@@ -43,7 +44,6 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
     ui->label_8->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->label_4->setText(userInfo.getIp());
     ui->label_6->setText(userInfo.getMac());
-    ui->pushButton_3->setEnabled(false);
     if(userInfo.isEnd())
     {
         qDebug()<<userInfo.isEnd();
@@ -66,6 +66,15 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
         ui->label_7->setAlignment(Qt::AlignCenter);
         ui->label_7->setPixmap(fitpixmap);
     }
+    init("已连接");
+}
+void ServerItem::init(QString tip)
+{
+    ui->pushButton_3->setEnabled(false);
+    ui->pushButton->setEnabled(true);
+    ui->pushButton_2->setEnabled(true);
+    userInfo.setEnd(false);
+    ui->label_8->setText(tip);
     this->use = false;
     ui->label_10->setText("0 min");
     this->time = 0;
@@ -73,27 +82,67 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
     connect(m_pTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
     m_pTimer->start(60000);
 }
+bool ServerItem::isEnd()
+{
+    return userInfo.isEnd();
+}
+void ServerItem::FirstStoreRecord()
+{
+    QString ip = ParaUtil::get_localmachine_ip().at(0).toString();
+    QString mac = ParaUtil::gethostMac();
+    QDateTime time = QDateTime::currentDateTime();   //获取当前时间
+    int timeT = time.toTime_t();   //将当前时间转为时间戳
+    qDebug()<<"timestap="<<timeT;
+    userInfo.setTimestap(timeT);
+
+    HttpUtil * http = new HttpUtil;
+    QString req = "server_mac="+userInfo.getMac()+"&server_ip="+userInfo.getIp()+"&server_address="+userInfo.getAddress()+"&start_timestap="
+            +QString::number(timeT)+"&client_mac="+mac+"&client_ip="+ip+"&client_address="+ParaUtil::address+"&money="+QString::number(userInfo.getMoney());
+    //qDebug()<<req;
+    connect(http, SIGNAL(httpFinished(QString)), this, SLOT(connectServerResult(QString)));
+    http->sendRequest(ParaUtil::url+"firstStoreRecord",req,true);
+}
+void ServerItem::connectServerResult(QString str)
+{
+    QString address = JsonUtil::ParseConnectServerResult(str);
+    if(address != nullptr)
+    {
+        if(address=="0")
+        {
+            ui->label_8->setText("代币数量不足");
+        }
+        else
+        {
+           init("已重新初始化");
+        }
+
+    }
+    else
+    {
+        ui->label_8->setText("连接服务端发生错误");
+    }
+
+}
 ServerItem::~ServerItem()
 {
     delete ui;
 }
-
-
-void ServerItem::on_pushButton_2_clicked()
+void Delay_MSec(unsigned int msec)
 {
-    for(int i=0;i<threads.size();i++)
-    {
-        if(threads.at(i)->isRunning())
-        {
-            ui->label_8->setText("请结束应用");
-            return;
-        }
+    QTime _Timer = QTime::currentTime().addMSecs(msec);
 
-    }
+    while( QTime::currentTime() < _Timer )
+
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}
+void ServerItem::endUse(bool endByHand)
+{
     QDateTime time = QDateTime::currentDateTime();   //获取当前时间
     int endTime = time.toTime_t();   //将当前时间转为时间戳
     int total = endTime - userInfo.getTimestap();
-    int money = total/3600 + (total%(3600)==0?0:1);
+    double money;
+    if(endByHand) money = (total/3600 + (total%(3600)==0?0:1))*userInfo.getMoney();
+    else money = (total/3600)*userInfo.getMoney();
     qDebug()<<endTime;
     qDebug()<<money;
     HttpUtil * http = new HttpUtil;
@@ -101,7 +150,13 @@ void ServerItem::on_pushButton_2_clicked()
             +"&end_timestap="+QString::number(endTime)+"&client_address="+ParaUtil::address+"&server_address="+userInfo.getAddress();
     qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(endStoreRecordResult(QString)));
-    http->sendRequest("http://127.0.0.1:3000/endStoreRecord",req,true);
+    http->sendRequest(ParaUtil::url+"endStoreRecord",req,true);
+}
+
+void ServerItem::on_pushButton_2_clicked()
+{
+    closeAllSoftware();
+    endUse(true);
 }
 void ServerItem::endStoreRecordResult(QString str)
 {
@@ -113,19 +168,22 @@ void ServerItem::endStoreRecordResult(QString str)
         ui->pushButton_3->setEnabled(false);
         ui->label_8->setText("共享结束");
         userInfo.setEnd(true);
+        m_pTimer->stop();
     }
     else
     {
         ui->label_8->setText("共享结束异常");
+        Delay_MSec(5000);
+        endUse(true);
     }
 }
 
 void ServerItem::on_pushButton_clicked()
 {
     HttpUtil * http = new HttpUtil;
-    QString req = "key="+userInfo.getAddress()+QString::number(userInfo.getTimestap());
+    QString req = "key="+ParaUtil::address+QString::number(userInfo.getTimestap());
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(canUseResult(QString)));
-    http->sendRequest("http://127.0.0.1:3000/canUseNow?"+req,NULL,false);
+    http->sendRequest(ParaUtil::url+"canUseNow?"+req,NULL,false);
 }
 void ServerItem::canUseResult(QString str)
 {
@@ -152,14 +210,70 @@ void ServerItem::on_pushButton_3_clicked()
     {
         QString name = ui->listWidget->currentItem()->text();
         software softw = userInfo.getUserSoftwares().value(name);
+        opened.insert(softw.name);
         ParaUtil::writeFile(name+".exp","yifei",userInfo.getIp(),userInfo.getPass(),softw.start);
         StartAppThread *thread = new StartAppThread(name+".exp");
-        threads.append(thread);
         thread->start();
     }
 }
 void ServerItem::handleTimeout()
 {
     this->time++;
+    if(time % 2==0 && time !=0)
+    {
+        HttpUtil * http = new HttpUtil;
+        QString req = "server_address="+userInfo.getAddress()+"&client_address="+ParaUtil::address+"&money="+QString::number(userInfo.getMoney())
+                +"&key="+ParaUtil::address+QString::number(userInfo.getTimestap());
+        qDebug()<<req;
+        connect(http, SIGNAL(httpFinished(QString)), this, SLOT(continueToPayResult(QString)));
+        http->sendRequest(ParaUtil::url+"continueToPay",req,true);
+    }
     ui->label_10->setText(QString::number(time)+" min");
 }
+void ServerItem::continueToPayResult(QString str)
+{
+    QString address = JsonUtil::ParseConnectServerResult(str);
+    if(address != nullptr)
+    {
+        if(address=="0")
+        {
+            ui->pushButton->setEnabled(false);
+            ui->pushButton_2->setEnabled(false);
+            ui->pushButton_3->setEnabled(false);
+            ui->label_8->setText("代币数量不足");
+            userInfo.setEnd(true);
+            m_pTimer->stop();
+            endUse(false);
+        }
+        else
+        {
+            ui->label_8->setText("成功续费，继续使用");
+        }
+
+    }
+    else
+    {
+        ui->pushButton->setEnabled(false);
+        ui->pushButton_2->setEnabled(false);
+        ui->pushButton_3->setEnabled(false);
+        ui->label_8->setText("连接服务端发生错误");
+        userInfo.setEnd(true);
+        endUse(false);
+        m_pTimer->stop();
+    }
+}
+void ServerItem::closeAllSoftware()
+{
+    if(opened.size()>0)
+    {
+        QStringList list;
+        foreach (const QString name, opened)
+        {
+            list.append(userInfo.getUserSoftwares().value(name).start);
+        }
+        ParaUtil::writeCloseFile("close.exp","yifei",userInfo.getIp(),userInfo.getPass(),list);
+        StartAppThread *thread = new StartAppThread("close.exp");
+        thread->start();
+    }
+}
+

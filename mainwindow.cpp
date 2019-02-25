@@ -48,7 +48,7 @@ void MainWindow::on_pushButton_clicked()
    QString req = "address="+ParaUtil::address+"&pass="+pass;
    //qDebug()<<req;
    connect(http0, SIGNAL(httpFinished(QString)), this, SLOT(loginResult(QString)));
-   http0->sendRequest("http://127.0.0.1:3000/login",req,true);
+   http0->sendRequest(ParaUtil::url+"login",req,true);
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -72,7 +72,7 @@ void MainWindow::on_pushButton_4_clicked()
         QString req = "pass="+pass1;
         qDebug()<<req;
         connect(http, SIGNAL(httpFinished(QString)), this, SLOT(newAccountResult(QString)));
-        http->sendRequest("http://127.0.0.1:3000/newAccount",req,true);
+        http->sendRequest(ParaUtil::url+"newAccount",req,true);
     }
 }
 
@@ -83,10 +83,18 @@ void MainWindow::on_pushButton_5_clicked()
 }
 void MainWindow::loginResult(QString str)
 {
-    int result = JsonUtil::ParseSuccessAndBoolResult(str,"Register");
+    int result = JsonUtil::ParseUnlockAccountResult(str);
     if(result !=0 )
     {
         if(result ==1)
+        {
+            ui->layoutWidget->hide();
+            ui->layoutWidget4->setGeometry(QRect(60, 130, 311,100));
+            ui->pushButton_3->setEnabled(false);
+            ui->pushButton_6->setEnabled(false);
+            ui->layoutWidget4->show();
+        }
+        else if(result==2)
         {
             ui->layoutWidget->hide();
             ui->layoutWidget4->setGeometry(QRect(60, 130, 311,100));
@@ -94,13 +102,24 @@ void MainWindow::loginResult(QString str)
              ui->label_8->setText("");
             ui->layoutWidget4->show();
         }
-        else
+        else if(result==3)
         {
             ui->layoutWidget->hide();
-            ui->layoutWidget4->setGeometry(QRect(60, 130, 311,100));
-            ui->pushButton_3->setEnabled(false);
-            ui->pushButton_6->setEnabled(false);
-            ui->layoutWidget4->show();
+            ui->layoutWidget3->setGeometry(QRect(10, 130, 421,91));
+            QList<QHostAddress> list = ParaUtil::get_localmachine_ip();
+            QHostAddress ip;
+            ui->comboBox->clear();
+            foreach (ip, list) {
+                ui->comboBox->addItem(ip.toString());
+            }
+            this->ip = ui->comboBox->currentText();
+            ui->layoutWidget3->show();
+
+            ui->label_12->setStyleSheet("color:blue;");
+            ui->label_12->setText("开启分享");
+            ui->pushButton_11->setEnabled(false);
+            ui->pushButton_12->setEnabled(true);
+            isShare = true;
         }
     }
     else
@@ -128,8 +147,8 @@ void MainWindow::startServiecResult(QString str)
 }
 void MainWindow::endServiecResult(QString str)
 {
-    bool result = JsonUtil::ParseSimpleResult(str);
-    if(result)
+    int result = JsonUtil::ParseEndServiceResult(str);
+    if(result==1)
     {
         ui->label_12->setStyleSheet("color:blue;");
         ui->label_12->setText("结束分享");
@@ -137,10 +156,16 @@ void MainWindow::endServiecResult(QString str)
         ui->pushButton_11->setEnabled(true);
         isShare = false;
     }
-    else
+    else if(result==0)
     {
         ui->label_12->setStyleSheet("color:red;");
         ui->label_12->setText("结束异常");
+        isShare = true;
+    }
+    else
+    {
+        ui->label_12->setStyleSheet("color:red;");
+        ui->label_12->setText(QString::number(result-1)+"人正在使用");
         isShare = true;
     }
 }
@@ -169,6 +194,8 @@ void MainWindow::on_pushButton_3_clicked()
 {
     UseSoftWareForm *form = new UseSoftWareForm;
     form->show();
+    connect(form, SIGNAL(winClose()), this, SLOT(winAppear()));
+    this->hide();
 }
 
 void MainWindow::on_pushButton_10_clicked()
@@ -207,10 +234,10 @@ void MainWindow::on_pushButton_11_clicked()
     //start share
     QString mac = ParaUtil::gethostMac();
     HttpUtil * http = new HttpUtil;
-    QString req = "address="+ParaUtil::address+"&mac="+mac+"&ip="+ip;
+    QString req = "address="+ParaUtil::address+"&mac="+mac+"&ip="+ip+"&moneyPerHour=5";
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(startServiecResult(QString)));
-    http->sendRequest("http://127.0.0.1:3000/startService",req,true);
+    http->sendRequest(ParaUtil::url+"startService",req,true);
 }
 
 void MainWindow::on_pushButton_12_clicked()
@@ -220,7 +247,7 @@ void MainWindow::on_pushButton_12_clicked()
     QString req = "address="+ParaUtil::address;
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(endServiecResult(QString)));
-    http->sendRequest("http://127.0.0.1:3000/endService",req,true);
+    http->sendRequest(ParaUtil::url+"endService",req,true);
 }
 void MainWindow::winAppear()
 {
@@ -243,6 +270,7 @@ void MainWindow::on_pushButton_15_clicked()
     else
     {
         ui->layoutWidget3->hide();
+        ui->layoutWidget2->setGeometry(QRect(60, 130, 311,31));
         ui->layoutWidget2->show();
     }
 }
@@ -254,7 +282,7 @@ void MainWindow::on_pushButton_7_clicked()
     QString req = "address="+ParaUtil::address;
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(registerResult(QString)));
-    http->sendRequest("http://127.0.0.1:3000/register",req,true);
+    http->sendRequest(ParaUtil::url+"register",req,true);
 }
 void MainWindow::registerResult(QString str)
 {

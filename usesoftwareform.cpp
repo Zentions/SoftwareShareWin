@@ -21,7 +21,10 @@ UseSoftWareForm::~UseSoftWareForm()
 {
     delete ui;
 }
-
+void UseSoftWareForm::closeEvent(QCloseEvent *)
+{
+    emit winClose();
+}
 void UseSoftWareForm::on_pushButton_5_clicked()
 {
     int count = ui->treeWidget->topLevelItemCount();
@@ -38,11 +41,11 @@ void UseSoftWareForm::queryShareUser(bool byName,QString name)
     connect(http0, SIGNAL(httpFinished(QString)), this, SLOT(shareUserResult(QString)));
     if(byName)
     {
-        http0->sendRequest("http://127.0.0.1:3000/getShareUserBySoftware?name="+name,NULL,false);
+        http0->sendRequest(ParaUtil::url+"getShareUserBySoftware?name="+name,NULL,false);
     }
     else
     {
-        http0->sendRequest("http://127.0.0.1:3000/getShareUser",NULL,false);
+        http0->sendRequest(ParaUtil::url+"getShareUser",NULL,false);
     }
 }
 void UseSoftWareForm::queryShareUserInfo(QString address)
@@ -51,7 +54,7 @@ void UseSoftWareForm::queryShareUserInfo(QString address)
     QString req = "address="+address;
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(shareUserInfoResultForTreeWidget(QString)));
-    http->sendRequest("http://127.0.0.1:3000/getShareUserInfo?"+req,NULL,false);
+    http->sendRequest(ParaUtil::url+"getShareUserInfo?"+req,NULL,false);
 }
 void UseSoftWareForm::shareUserResult(QString str)
 {
@@ -95,6 +98,8 @@ void UseSoftWareForm::shareUserInfoResultForTreeWidget(QString str)
     ipItem->setText(0,userInfo.getIp());
     QTreeWidgetItem* scoreItem = new QTreeWidgetItem(item);
     scoreItem->setText(0,QString::number(userInfo.getScore()));
+    QTreeWidgetItem* moneyItem = new QTreeWidgetItem(item);
+    moneyItem->setText(0,QString::number(userInfo.getMoney())+" ether");
     QTreeWidgetItem* softwareItem = new QTreeWidgetItem(item);
     softwareItem->setText(0,"共享软件列表");
     QList<QString> list = userInfo.getSoftwareName();
@@ -141,9 +146,17 @@ void UseSoftWareForm::on_pushButton_clicked()
 {
     if(ui->lineEdit->text()!="")
     {
-        if(this->ConnectUsers.contains(ui->lineEdit->text()))
+        QString add = ui->lineEdit->text();
+        if(this->ConnectUsers.contains(add))
         {
-             QMessageBox::about(this, "warning", "您已经连接该服务端");
+            if(ConnectUsers.value(add)->isEnd())
+            {
+                ConnectUsers.value(add)->FirstStoreRecord();
+            }
+            else
+            {
+                QMessageBox::about(this, "warning", "您已经连接该服务端");
+            }
         }
         else
         {
@@ -151,7 +164,7 @@ void UseSoftWareForm::on_pushButton_clicked()
             QString req = "address="+ui->lineEdit->text();
             //qDebug()<<req;
             connect(http, SIGNAL(httpFinished(QString)), this, SLOT(shareUserInfoResultForConnect(QString)));
-            http->sendRequest("http://127.0.0.1:3000/getShareUserInfo?"+req,NULL,false);
+            http->sendRequest(ParaUtil::url+"getShareUserInfo?"+req,NULL,false);
         }
     }
 }
@@ -173,10 +186,11 @@ void UseSoftWareForm::shareUserInfoResultForConnect(QString str)
         PendUsers.insert(userInfo.getAddress(),userInfo);
 
         HttpUtil * http = new HttpUtil;
-        QString req = "server_mac="+userInfo.getMac()+"&server_ip="+userInfo.getIp()+"&server_address="+userInfo.getAddress()+"&start_timestap="+QString::number(timeT)+"&client_mac="+mac+"&client_ip="+ip+"&client_address="+ParaUtil::address;
-        qDebug()<<req;
+        QString req = "server_mac="+userInfo.getMac()+"&server_ip="+userInfo.getIp()+"&server_address="+userInfo.getAddress()+"&start_timestap="
+                +QString::number(timeT)+"&client_mac="+mac+"&client_ip="+ip+"&client_address="+ParaUtil::address+"&money="+QString::number(userInfo.getMoney());
+        //qDebug()<<req;
         connect(http, SIGNAL(httpFinished(QString)), this, SLOT(connectServerResult(QString)));
-        http->sendRequest("http://127.0.0.1:3000/firstStoreRecord",req,true);
+        http->sendRequest(ParaUtil::url+"firstStoreRecord",req,true);
     }
 }
 void UseSoftWareForm::connectServerResult(QString str)
@@ -184,49 +198,57 @@ void UseSoftWareForm::connectServerResult(QString str)
     QString address = JsonUtil::ParseConnectServerResult(str);
     if(address != nullptr)
     {
-        UserInfo userInfo = PendUsers.take(address);
-        //ConnectUsers.insert(address,userInfo);
-        ConnectAddress.append(address);
-        if(ConnectAddress.size()%2==0)
+        if(address=="0")
         {
-
-            current = ConnectAddress.size() -2;
-            ServerItem* item = new ServerItem(userInfo,ConnectAddress.size()-1);
-            QWidget *w = ui->gridLayout->itemAt(1)->widget();
-            ui->gridLayout->removeWidget(w);
-            delete w;
-            ui->gridLayout->addWidget(item,0,1,1,-1);
-            ConnectUsers.insert(address,item);
+            QMessageBox::about(this, "warning", "代币数量不足");
         }
         else
         {
-            qDebug()<<1234;
-            current = ConnectAddress.size()-1;
-            QLayoutItem *layoutItem0 = ui->gridLayout->itemAt(0);
-            if(layoutItem0!=NULL)
+            UserInfo userInfo = PendUsers.take(address);
+            //ConnectUsers.insert(address,userInfo);
+            ConnectAddress.append(address);
+            if(ConnectAddress.size()%2==0)
             {
-                QWidget* w0 = layoutItem0->widget();
-                ui->gridLayout->removeWidget(w0);
-                w0->setParent(NULL);
+
+                current = ConnectAddress.size() -2;
+                ServerItem* item = new ServerItem(userInfo,ConnectAddress.size()-1);
+                QWidget *w = ui->gridLayout->itemAt(1)->widget();
+                ui->gridLayout->removeWidget(w);
+                delete w;
+                ui->gridLayout->addWidget(item,0,1,1,-1);
+                ConnectUsers.insert(address,item);
             }
-            QLayoutItem *layoutItem1 = ui->gridLayout->itemAt(0);
-            if(layoutItem1!=NULL)
+            else
             {
-                QWidget* w1 = layoutItem1->widget();
-                ui->gridLayout->removeWidget(w1);
-                w1->setParent(NULL);
+                qDebug()<<1234;
+                current = ConnectAddress.size()-1;
+                QLayoutItem *layoutItem0 = ui->gridLayout->itemAt(0);
+                if(layoutItem0!=NULL)
+                {
+                    QWidget* w0 = layoutItem0->widget();
+                    ui->gridLayout->removeWidget(w0);
+                    w0->setParent(NULL);
+                }
+                QLayoutItem *layoutItem1 = ui->gridLayout->itemAt(0);
+                if(layoutItem1!=NULL)
+                {
+                    QWidget* w1 = layoutItem1->widget();
+                    ui->gridLayout->removeWidget(w1);
+                    w1->setParent(NULL);
+                }
+                ServerItem* item0 = new ServerItem(userInfo,ConnectAddress.size()-1);
+                ServerItem* item1 = new ServerItem;
+                ui->gridLayout->addWidget(item0,0,0,1,-1);
+                ui->gridLayout->addWidget(item1,0,1,1,-1);
+                ConnectUsers.insert(address,item0);
             }
-            ServerItem* item0 = new ServerItem(userInfo,ConnectAddress.size()-1);
-            ServerItem* item1 = new ServerItem;
-            ui->gridLayout->addWidget(item0,0,0,1,-1);
-            ui->gridLayout->addWidget(item1,0,1,1,-1);
-            ConnectUsers.insert(address,item0);
+            ui->pushButton_3->setEnabled(false);
+            if(current==0) ui->pushButton_2->setEnabled(false);
+            else ui->pushButton_2->setEnabled(true);
+            ui->label_2->setText("共"+QString::number((ConnectUsers.size()+1)/2)+"页");
+            ui->label->setText("当前第"+QString::number(current/2+1)+"页");
         }
-        ui->pushButton_3->setEnabled(false);
-        if(current==0) ui->pushButton_2->setEnabled(false);
-        else ui->pushButton_2->setEnabled(true);
-        ui->label_2->setText("共"+QString::number((ConnectUsers.size()+1)/2)+"页");
-        ui->label->setText("当前第"+QString::number(current/2+1)+"页");
+
     }
     else
     {

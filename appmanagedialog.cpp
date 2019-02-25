@@ -27,7 +27,7 @@ void AppManageDialog::updateApp()
     QString req = "address="+ParaUtil::address;
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(getSoftwareResult(QString)));
-    http->sendRequest("http://127.0.0.1:3000/getSoftware?"+req,NULL,false);
+    http->sendRequest(ParaUtil::url+"getSoftware?"+req,NULL,false);
 }
 void AppManageDialog::getPass()
 {
@@ -35,7 +35,7 @@ void AppManageDialog::getPass()
     QString req = "address="+ParaUtil::address;
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(getPassResult(QString)));
-    http->sendRequest("http://127.0.0.1:3000/getUserPass?"+req,NULL,false);
+    http->sendRequest(ParaUtil::url+"getUserPass?"+req,NULL,false);
 }
 AppManageDialog::~AppManageDialog()
 {
@@ -55,7 +55,7 @@ void AppManageDialog::on_addButton_clicked()
         QString req = "address="+ParaUtil::address+"&name="+name+"&start="+path+"&date="+current_date;
         //qDebug()<<req;
         connect(http, SIGNAL(httpFinished(QString)), this, SLOT(storeSoftwareResult(QString)));
-        http->sendRequest("http://127.0.0.1:3000/storeSoftware",req,true);
+        http->sendRequest(ParaUtil::url+"storeSoftware",req,true);
     }
 }
 
@@ -71,7 +71,7 @@ void AppManageDialog::on_delButton_clicked()
             QString req = "address="+ParaUtil::address+"&name="+name;
             //qDebug()<<req;
             connect(http, SIGNAL(httpFinished(QString)), this, SLOT(delSoftWareResult(QString)));
-            http->sendRequest("http://127.0.0.1:3000/deleteSoftWare",req,true);
+            http->sendRequest(ParaUtil::url+"deleteSoftWare",req,true);
             break;
         }
     }
@@ -184,7 +184,7 @@ void AppManageDialog::on_addButton_4_clicked()
         QString req = "address="+ParaUtil::address+"&pass="+newPass;
         //qDebug()<<req;
         connect(http, SIGNAL(httpFinished(QString)), this, SLOT(modifyPassResult(QString)));
-        http->sendRequest("http://127.0.0.1:3000/modifyPass",req,true);
+        http->sendRequest(ParaUtil::url+"modifyPass",req,true);
     }
 }
 void AppManageDialog::modifyPassResult(QString str)

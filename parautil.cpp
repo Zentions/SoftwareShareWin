@@ -5,6 +5,7 @@ ParaUtil::ParaUtil()
 
 }
 QString ParaUtil::address = "0";
+QString ParaUtil::url = "http://127.0.0.1:3000/";
 QList<QHostAddress> ParaUtil::get_localmachine_ip()
 {
     QString ipAddress;
@@ -63,8 +64,31 @@ void ParaUtil::writeFile(QString fileName,QString name,QString ip,QString pass,Q
     out << "\"yes/no\" { send \"yes\\r\"; exp_continue}\n";
     out << "\"password:\" { send \""+pass+"\\r\" }\n";
     out << "}\n";
-    out << "expect \"*#\"\n";
+    out << "expect \":~$\"\n";
     out << "send \""+app+"\\r\"\n";
+    out << "set timeout -1\n";
+    out << "send \"exit\\r\"\n";
+    out << "expect eof\n";
+    file.flush();
+    file.close();
+}
+void ParaUtil::writeCloseFile(QString fileName,QString name,QString ip,QString pass,QStringList app)
+{
+    QFile file(fileName);
+    // Trying to open in WriteOnly and Text mode
+    if(!file.open(QFile::WriteOnly | QFile::Text))
+    {
+        qDebug() << "Could not open file for writing";
+        return;
+    }
+    QTextStream out(&file);
+    out << "#!/usr/bin/expect\n";
+    out << "spawn ssh -X "+name+"@"+ip+"\n";
+    out << "expect {\n";
+    out << "\"password:\" { send \""+pass+"\\r\" }\n";
+    out << "}\n";
+    out << "expect \":~$\"\n";
+    for(int i=0;i<app.size();i++) out << "send \"killall "+app.at(i)+"\\r\"\n";
     out << "set timeout -1\n";
     out << "send \"exit\\r\"\n";
     out << "expect eof\n";

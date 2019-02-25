@@ -172,11 +172,13 @@ UserInfo JsonUtil::ParseshareUserInfoResult(QString str)
             QJsonValue ipVal = object.value("ip");
             QJsonValue passVal = object.value("pass");
             QJsonValue scoreVal = object.value("score");
+            QJsonValue moneyVal = object.value("money");
             userInfo.setAddress(addressVal.toString());
             userInfo.setIP(ipVal.toString());
             userInfo.setMac(macVal.toString());
             userInfo.setPass(passVal.toString());
             userInfo.setScore(scoreVal.toString().toInt());
+            userInfo.setMoney(moneyVal.toString().toDouble());
             qDebug()<<userInfo.getScore();
             //array
             QJsonValue softwareValue = object.value("sws");
@@ -227,8 +229,57 @@ QString JsonUtil::ParseConnectServerResult(QString str)
     QJsonValue value = object.value("success");
     if(value.toBool())
     {
-        QJsonValue address_value = object.value("address");
-        return address_value.toString();
+        QJsonValue enough_value = object.value("isEnough");
+        if(enough_value.toBool())
+        {
+            QJsonValue address_value = object.value("address");
+            return address_value.toString();
+        }
+        else return "0";
     }
     else return nullptr;
+}
+int JsonUtil::ParseEndServiceResult(QString str)
+{
+    QByteArray byteArray = str.toLatin1();
+    QJsonParseError jsonError;
+    QJsonDocument doucment = QJsonDocument::fromJson(byteArray, &jsonError);  // 转化为 JSON 文档
+
+    //开始解析
+    QJsonObject object = doucment.object();  // 转化为对象
+    QJsonValue value = object.value("success");
+    if(value.toBool())
+    {
+        QJsonValue count_value = object.value("count");
+        int count = count_value.toString().toInt();
+        qDebug()<<"count="<<count;
+        return (count+1);
+    }
+    else return 0;
+}
+
+int JsonUtil::ParseUnlockAccountResult(QString str)
+{
+    QByteArray byteArray = str.toLatin1();
+    QJsonParseError jsonError;
+    QJsonDocument doucment = QJsonDocument::fromJson(byteArray, &jsonError);  // 转化为 JSON 文档
+
+    //开始解析
+    QJsonObject object = doucment.object();  // 转化为对象
+    QJsonValue value = object.value("success");
+    if(value.toBool())
+    {
+        QJsonValue reg_value = object.value("Register");
+        if(reg_value.toBool())
+        {
+            QJsonValue share_value = object.value("isShare");
+            if(!share_value.toBool()) return 2;
+            else return 3;
+        }
+        else
+        {
+            return 1;
+        }
+    }
+    else return 0;
 }

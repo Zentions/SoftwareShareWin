@@ -86,3 +86,11 @@ void UserInfo::setEnd(bool end)
 {
     this->end = end;
 }
+double UserInfo::getMoney()
+{
+    return money;
+}
+void UserInfo::setMoney(double money)
+{
+    this->money = money;
+}

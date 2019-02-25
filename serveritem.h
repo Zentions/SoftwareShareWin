@@ -11,6 +11,8 @@
 #include "startappthread.h"
 #include <QDateTime>
 #include <QVector>
+#include <QSet>
+using namespace std;
 namespace Ui {
 class ServerItem;
 }
@@ -23,6 +25,8 @@ class ServerItem : public QFrame
 public:
     explicit ServerItem(UserInfo userInfo,int index,QFrame *parent = 0);
     explicit ServerItem(QFrame *parent = 0);
+    void endUse(bool);
+    void closeAllSoftware();
     ~ServerItem();
 
 private slots:
@@ -38,15 +42,22 @@ private slots:
 
     void handleTimeout();
 
+    void continueToPayResult(QString);
+
+    void connectServerResult(QString);
+public:
+    void init(QString);
+    bool isEnd();
+    void FirstStoreRecord();
 private:
     Ui::ServerItem *ui;
     QImage image;
     UserInfo userInfo;
     int index;
     bool use;
-    QVector<StartAppThread*> threads;
     QTimer* m_pTimer;
     int time;
+    QSet<QString> opened;
 };
 
 #endif // SERVERITEM_H

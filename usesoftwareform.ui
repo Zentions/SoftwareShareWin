@@ -114,14 +114,14 @@
     <item>
      <widget class="QLabel" name="label_2">
       <property name="text">
-       <string>共几页</string>
+       <string>共0页</string>
       </property>
      </widget>
     </item>
     <item>
      <widget class="QLabel" name="label">
       <property name="text">
-       <string>当前第几页</string>
+       <string>当前第0页</string>
       </property>
      </widget>
     </item>
