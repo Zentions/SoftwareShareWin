@@ -24,6 +24,11 @@
    </property>
    <column>
     <property name="text">
+     <string>index</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
      <string>应用名称</string>
     </property>
    </column>

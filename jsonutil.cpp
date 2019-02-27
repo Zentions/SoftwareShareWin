@@ -59,12 +59,15 @@ QVector<software*> JsonUtil::ParseSoftwareResult(QString str)
             if(array[i].isObject())
             {
                 QVariantMap result = array[i].toVariant().toMap();
-                QString name,start,date,score;
+                QString name,start,date;
+                int score;
+                int index = result["index"].toInt();
                 name=result["name"].toString();
                 start=result["start"].toString();
                 date=result["date"].toString();
-                score=result["score"].toString();
+                score=result["score"].toString().toInt();
                 software *infor=new software;
+                infor->index = index;
                 infor->date= date;
                 infor->name = name;
                 infor->start = start;
@@ -116,10 +119,11 @@ software JsonUtil::ParseSingleSoftwareResult(QString str)
             QJsonValue sw_start = object.value("start");
             QJsonValue sw_name = object.value("name");
             QJsonValue sw_score = object.value("score");
+            sw.index = -1;
             sw.date= sw_date.toString();
             sw.name = sw_name.toString();
             sw.start = sw_start.toString();
-            sw.score = sw_score.toString();
+            sw.score = sw_score.toString().toInt();
         }
     }
     return sw;
@@ -135,7 +139,7 @@ QString JsonUtil::ParseDelSoftwareResult(QString str)
     QJsonValue value = object.value("success");
     if(value.toBool())
     {
-        QJsonValue name_value = object.value("_name");
+        QJsonValue name_value = object.value("_index");
         return name_value.toString();
     }
     else return nullptr;
@@ -191,12 +195,15 @@ UserInfo JsonUtil::ParseshareUserInfoResult(QString str)
                 if(array[i].isObject())
                 {
                     QVariantMap result = array[i].toVariant().toMap();
-                    QString name,start,date,score;
+                    QString name,start,date;
+                    int score;
+                    int index = result["index"].toInt();
                     name=result["name"].toString();
                     start=result["start"].toString();
                     date=result["date"].toString();
-                    score=result["score"].toString();
+                    score=result["score"].toString().toInt();
                     software *infor=new software;
+                    infor->index = index;
                     infor->date= date;
                     infor->name = name;
                     infor->start = start;

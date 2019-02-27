@@ -8,10 +8,12 @@
 #include "httputil.h"
 #include "jsonutil.h"
 #include "parautil.h"
+#include "markdialog.h"
 #include "startappthread.h"
 #include <QDateTime>
 #include <QVector>
 #include <QSet>
+#include <QPainter>
 using namespace std;
 namespace Ui {
 class ServerItem;
@@ -45,6 +47,10 @@ private slots:
     void continueToPayResult(QString);
 
     void connectServerResult(QString);
+
+protected:
+    void paintEvent(QPaintEvent *);
+
 public:
     void init(QString);
     bool isEnd();
@@ -57,7 +63,7 @@ private:
     bool use;
     QTimer* m_pTimer;
     int time;
-    QSet<QString> opened;
+    QSet<int> opened;
 };
 
 #endif // SERVERITEM_H

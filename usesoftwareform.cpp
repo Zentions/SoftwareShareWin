@@ -14,16 +14,28 @@ UseSoftWareForm::UseSoftWareForm(QWidget *parent) :
     ui->lineEdit->setEnabled(false);
     ui->pushButton_2->setEnabled(false);
     ui->pushButton_3->setEnabled(false);
-
+   // ui->label_3->setFrameShape (QFrame::Box);
+   // ui->label_3->setStyleSheet("border-width: 1px;border-style: solid;border-color: rgb(255, 170, 0);");
 }
 
 UseSoftWareForm::~UseSoftWareForm()
 {
     delete ui;
 }
-void UseSoftWareForm::closeEvent(QCloseEvent *)
+void UseSoftWareForm::closeEvent(QCloseEvent *event)
 {
+    for(int i=0;i<ConnectAddress.size();i++)
+    {
+        QString add = ConnectAddress[i];
+        if(!ConnectUsers.value(add)->isEnd())
+        {
+            QMessageBox::about(this, "warning", "请结束所有共享再退出！");
+            event->ignore();
+            return;
+        }
+    }
     emit winClose();
+    event->accept();
 }
 void UseSoftWareForm::on_pushButton_5_clicked()
 {
@@ -97,16 +109,21 @@ void UseSoftWareForm::shareUserInfoResultForTreeWidget(QString str)
     QTreeWidgetItem* ipItem = new QTreeWidgetItem(item);
     ipItem->setText(0,userInfo.getIp());
     QTreeWidgetItem* scoreItem = new QTreeWidgetItem(item);
-    scoreItem->setText(0,QString::number(userInfo.getScore()));
+    scoreItem->setText(0,QString::number(userInfo.getScore()/10.0,'f',1));
     QTreeWidgetItem* moneyItem = new QTreeWidgetItem(item);
     moneyItem->setText(0,QString::number(userInfo.getMoney())+" ether");
     QTreeWidgetItem* softwareItem = new QTreeWidgetItem(item);
     softwareItem->setText(0,"共享软件列表");
-    QList<QString> list = userInfo.getSoftwareName();
+    QList<int> list = userInfo.getSoftwareIndex();
     for(int i=0;i<list.size();i++)
     {
+        software s = userInfo.getUserSoftwares().value(list.at(i));
         QTreeWidgetItem* swItem = new QTreeWidgetItem(softwareItem);
-        swItem->setText(0,list.at(i));
+        swItem->setText(0,s.name);
+        QTreeWidgetItem* scoreItem = new QTreeWidgetItem(swItem);
+        scoreItem->setText(0,QString::number(s.score/10.0,'f',1));
+        QTreeWidgetItem* dateItem = new QTreeWidgetItem(swItem);
+        dateItem->setText(0,s.name);
     }
 }
 
@@ -327,4 +344,3 @@ void UseSoftWareForm::on_pushButton_3_clicked()
     ui->label_2->setText("共"+QString::number((ConnectUsers.size()+1)/2)+"页");
     ui->label->setText("当前第"+QString::number(current/2+1)+"页");
 }
-

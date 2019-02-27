@@ -16,9 +16,9 @@ UserInfo::UserInfo()
 }
 void UserInfo::insetUserSoftwares(software sw)
 {
-    UserSoftwares.insert(sw.name,sw);
+    UserSoftwares.insert(sw.index,sw);
 }
-QMap<QString,software> UserInfo::getUserSoftwares()
+QMap<int,software> UserInfo::getUserSoftwares()
 {
     return UserSoftwares;
 }
@@ -66,7 +66,7 @@ int UserInfo::getSWLen()
 {
     return this->UserSoftwares.size();
 }
-QList<QString> UserInfo::getSoftwareName()
+QList<int> UserInfo::getSoftwareIndex()
 {
     return this->UserSoftwares.keys();
 }

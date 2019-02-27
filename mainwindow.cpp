@@ -86,6 +86,9 @@ void MainWindow::loginResult(QString str)
     int result = JsonUtil::ParseUnlockAccountResult(str);
     if(result !=0 )
     {
+        unlockTimer = new QTimer(this);
+        connect(unlockTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
+        unlockTimer->start(125000);
         if(result ==1)
         {
             ui->layoutWidget->hide();
@@ -299,4 +302,19 @@ void MainWindow::registerResult(QString str)
         ui->label_8->setText("发生错误，请重试!");
     }
 }
-
+void MainWindow::unlockResult(QString str)
+{
+    bool result = JsonUtil::ParseSimpleResult(str);
+    if(!result)
+    {
+        QMessageBox::about(this, "warning", "解锁账户异常");
+    }
+}
+void MainWindow::handleTimeout()
+{
+    HttpUtil * http = new HttpUtil;
+    QString req = "address="+ParaUtil::address;
+    //qDebug()<<req;
+    connect(http, SIGNAL(httpFinished(QString)), this, SLOT(unlockResult(QString)));
+    http->sendRequest(ParaUtil::url+"unlock",req,true);
+}

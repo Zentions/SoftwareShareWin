@@ -38,6 +38,8 @@ private slots:
 
     void registerResult(QString);
 
+    void unlockResult(QString);
+
     void endServiecResult(QString);
 
     void on_pushButton_6_clicked();
@@ -62,11 +64,13 @@ private slots:
 
     void on_pushButton_7_clicked();
 
+    void handleTimeout();
 
 private:
     Ui::MainWindow *ui;
     QString ip;
     bool isShare;
+    QTimer* unlockTimer;
 };
 
 #endif // MAINWINDOW_H

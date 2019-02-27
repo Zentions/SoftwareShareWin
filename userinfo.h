@@ -6,9 +6,10 @@
 #include <QList>
 
 struct software{
+    int index;
     QString date;
     QString name;
-    QString score;
+    int score;
     QString start;
 };
 
@@ -22,13 +23,13 @@ private:
     double money;
     int score;
     int start_timestap;
-    QMap<QString,software> UserSoftwares;
+    QMap<int,software> UserSoftwares;
     bool end;
 public:
     UserInfo();
     UserInfo(QString address,QString mac,QString ip,QString pass,uint score);
     void insetUserSoftwares(software);
-    QMap<QString,software> getUserSoftwares();
+    QMap<int,software> getUserSoftwares();
     QString getAddress();
     QString getMac();
     QString getIp();
@@ -46,7 +47,7 @@ public:
     int getSWLen();
     double getMoney();
     void setMoney(double);
-    QList<QString> getSoftwareName();
+    QList<int> getSoftwareIndex();
 };
 
 #endif // USERINFO_H

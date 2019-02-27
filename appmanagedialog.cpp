@@ -1,6 +1,6 @@
 #include "appmanagedialog.h"
 #include "ui_appmanagedialog.h"
-
+#include <QMessageBox>
 AppManageDialog::AppManageDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AppManageDialog)
@@ -8,10 +8,11 @@ AppManageDialog::AppManageDialog(QWidget *parent) :
     ui->setupUi(this);
     this->setStyleSheet("QTreeWidget{background-image: url(4.png)}"
                             "QTreeWidget::item{height:50px;width:50px;}");
-    ui->treeWidget->setColumnWidth(0,150);
-    ui->treeWidget->setColumnWidth(1,150);
-    ui->treeWidget->setColumnWidth(2,150);
-    ui->treeWidget->setColumnWidth(3,150);
+    ui->treeWidget->setColumnWidth(0,120);
+    ui->treeWidget->setColumnWidth(1,120);
+    ui->treeWidget->setColumnWidth(2,120);
+    ui->treeWidget->setColumnWidth(3,120);
+    ui->treeWidget->setColumnWidth(4,120);
     ui->userEdit->setText("share");
     ui->userEdit->setEnabled(false);
     ui->label_5->setAlignment(Qt::AlignHCenter);
@@ -66,12 +67,16 @@ void AppManageDialog::on_delButton_clicked()
     {
         if(ui->treeWidget->topLevelItem(i)->checkState(0)==Qt::Checked)
         {
-            QString name = ui->treeWidget->topLevelItem(i)->text(0).trimmed();
-            HttpUtil* http = new HttpUtil;
-            QString req = "address="+ParaUtil::address+"&name="+name;
-            //qDebug()<<req;
-            connect(http, SIGNAL(httpFinished(QString)), this, SLOT(delSoftWareResult(QString)));
-            http->sendRequest(ParaUtil::url+"deleteSoftWare",req,true);
+            QString index = ui->treeWidget->topLevelItem(i)->text(0).trimmed();
+            if(index!="undefine")
+            {
+                HttpUtil* http = new HttpUtil;
+                QString req = "address="+ParaUtil::address+"&index="+index;
+                //qDebug()<<req;
+                connect(http, SIGNAL(httpFinished(QString)), this, SLOT(delSoftWareResult(QString)));
+                http->sendRequest(ParaUtil::url+"deleteSoftWare",req,true);
+            }
+            else QMessageBox::about(this, "warning", "交易还未确认，稍后再试");
             break;
         }
     }
@@ -106,10 +111,11 @@ void AppManageDialog::getSoftwareResult(QString str)
     {
         QTreeWidgetItem* subItem = new QTreeWidgetItem(ui->treeWidget);
         subItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-        subItem->setText(0,vec[i]->name);
-        subItem->setText(1,vec[i]->start);
-        subItem->setText(2,vec[i]->score);
-        subItem->setText(3,vec[i]->date);
+        subItem->setText(0,QString::number(vec[i]->index));
+        subItem->setText(1,vec[i]->name);
+        subItem->setText(2,vec[i]->start);
+        subItem->setText(3,QString::number(vec[i]->score/10.0,'f',1));
+        subItem->setText(4,vec[i]->date);
         subItem->setCheckState(0,Qt::Unchecked);
     }
 }
@@ -122,10 +128,11 @@ void AppManageDialog::storeSoftwareResult(QString str)
     software sw = JsonUtil::ParseSingleSoftwareResult(str);
     QTreeWidgetItem* subItem = new QTreeWidgetItem(ui->treeWidget);
     subItem->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-    subItem->setText(0,sw.name);
-    subItem->setText(1,sw.start);
-    subItem->setText(2,sw.score);
-    subItem->setText(3,sw.date);
+    subItem->setText(0,"undefine");
+    subItem->setText(1,sw.name);
+    subItem->setText(2,sw.start);
+    subItem->setText(3,QString::number(sw.score/10.0,'f',1));
+    subItem->setText(4,sw.date);
     subItem->setCheckState(0,Qt::Unchecked);
 }
 
@@ -148,14 +155,14 @@ void AppManageDialog::on_treeWidget_itemChanged(QTreeWidgetItem *item, int colum
 
 void AppManageDialog::delSoftWareResult(QString str)
 {
-    QString name = JsonUtil::ParseDelSoftwareResult(str);
-    if(name != nullptr)
+    QString index = JsonUtil::ParseDelSoftwareResult(str);
+    if(index != nullptr)
     {
             int count  = ui->treeWidget->topLevelItemCount();
             for(int i=0;i<count;i++)
             {
                 if(ui->treeWidget->topLevelItem(i)->checkState(0)==Qt::Checked &&
-                        ui->treeWidget->topLevelItem(i)->text(0).trimmed() == name)
+                        ui->treeWidget->topLevelItem(i)->text(0).trimmed() == index)
                 {
 
                     delete ui->treeWidget->topLevelItem(i);

@@ -7,7 +7,9 @@ ServerItem::ServerItem(QFrame *parent) :
     ui(new Ui::ServerItem)
 {
     ui->setupUi(this);
-    this->setStyleSheet("ServerItem{border: 2px solid #FF00FF; border-radius: 5px;};");
+    this->setAttribute(Qt::WA_TranslucentBackground);//设置窗口背景透明
+    this->setWindowFlags(Qt::FramelessWindowHint);   //设置无边框窗口
+    //this->setStyleSheet("ServerItem{border: 2px solid #FF00FF; border-radius: 5px;};");
     ui->pushButton->setEnabled(false);
     ui->pushButton_2->setEnabled(false);
     ui->pushButton_3->setEnabled(false);
@@ -25,7 +27,9 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
     ui(new Ui::ServerItem)
 {
     ui->setupUi(this);
-    this->setStyleSheet("ServerItem{border: 2px solid #FF00FF; border-radius: 5px;};");
+    this->setAttribute(Qt::WA_TranslucentBackground);//设置窗口背景透明
+    this->setWindowFlags(Qt::FramelessWindowHint);   //设置无边框窗口
+    //this->setStyleSheet("ServerItem{border: 2px solid #FF00FF; border-radius: 5px;};");
     ui->listWidget->setStyleSheet("QListWidget{border:1px solid gray; color:black;background-image: url(5.png)}"
                                    "QListWidget::Item{padding-top:10px; padding-bottom:10px; }"
                                    "QListWidget::Item:hover{background:skyblue; }"
@@ -52,10 +56,11 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
         ui->pushButton_3->setEnabled(false);
         ui->label_8->setText("共享结束");
     }
-    QList<QString> list = userInfo.getSoftwareName();
+    QList<int> list = userInfo.getSoftwareIndex();
     for(int i=0;i<list.size();i++)
     {
-        QListWidgetItem *item = new QListWidgetItem(list.at(i), ui->listWidget);
+        QString tip = userInfo.getUserSoftwares().value(list.at(i)).name+"..."+QString::number(list.at(i));
+        QListWidgetItem *item = new QListWidgetItem(tip, ui->listWidget);
     }
     this->index = index;
     QString path = "./photo/"+QString::number(index % 4)+".png";
@@ -81,6 +86,7 @@ void ServerItem::init(QString tip)
     m_pTimer = new QTimer(this);
     connect(m_pTimer, SIGNAL(timeout()), this, SLOT(handleTimeout()));
     m_pTimer->start(60000);
+    opened.clear();
 }
 bool ServerItem::isEnd()
 {
@@ -208,11 +214,13 @@ void ServerItem::on_pushButton_3_clicked()
 {
     if(ui->listWidget->currentItem()!=NULL)
     {
-        QString name = ui->listWidget->currentItem()->text();
-        software softw = userInfo.getUserSoftwares().value(name);
-        opened.insert(softw.name);
-        ParaUtil::writeFile(name+".exp","yifei",userInfo.getIp(),userInfo.getPass(),softw.start);
-        StartAppThread *thread = new StartAppThread(name+".exp");
+        QString var = ui->listWidget->currentItem()->text();
+        QStringList list = var.split("...");
+        QString index = list.last();
+        software softw = userInfo.getUserSoftwares().value(index.toInt());
+        opened.insert(index.toInt());
+        ParaUtil::writeFile(softw.name+".exp","yifei",userInfo.getIp(),userInfo.getPass(),softw.start);
+        StartAppThread *thread = new StartAppThread(softw.name+".exp");
         thread->start();
     }
 }
@@ -267,13 +275,27 @@ void ServerItem::closeAllSoftware()
     if(opened.size()>0)
     {
         QStringList list;
-        foreach (const QString name, opened)
+        foreach (const int index, opened)
         {
-            list.append(userInfo.getUserSoftwares().value(name).start);
+            list.append(userInfo.getUserSoftwares().value(index).start);
         }
         ParaUtil::writeCloseFile("close.exp","yifei",userInfo.getIp(),userInfo.getPass(),list);
         StartAppThread *thread = new StartAppThread("close.exp");
         thread->start();
+        MarkDialog *dialog = new MarkDialog(userInfo,opened);
+        dialog->exec();
     }
 }
-
+ void ServerItem::paintEvent(QPaintEvent *)
+ {
+     QPainter painter(this);
+     painter.setRenderHint(QPainter::Antialiasing);  // 反锯齿;
+     QPen pen;
+     pen.setWidth(3);
+     pen.setColor(QColor("#FF00FF"));
+     painter.setPen(pen);
+     QRect rect = this->rect();
+     rect.setWidth(249);
+     rect.setHeight(rect.height() - 1);
+     painter.drawRoundedRect(rect, 15, 15);
+ }

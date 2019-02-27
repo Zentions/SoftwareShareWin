@@ -34,7 +34,9 @@ SOURCES += \
     usesoftwareform.cpp \
     serveritem.cpp \
     userinfo.cpp \
-    parautil.cpp
+    parautil.cpp \
+    markitem.cpp \
+    markdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -45,13 +47,17 @@ HEADERS += \
     usesoftwareform.h \
     serveritem.h \
     userinfo.h \
-    parautil.h
+    parautil.h \
+    markitem.h \
+    markdialog.h
 
 FORMS += \
         mainwindow.ui \
     appmanagedialog.ui \
     usesoftwareform.ui \
-    serveritem.ui
+    serveritem.ui \
+    markitem.ui \
+    markdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
