@@ -6,10 +6,10 @@ UseSoftWareForm::UseSoftWareForm(QWidget *parent) :
     ui(new Ui::UseSoftWareForm)
 {
     ui->setupUi(this);
-   // ServerItem *item = new ServerItem;
-   // ui->gridLayout->addWidget(item,0,0,1,-1);
-//    ServerItem *item1 = new ServerItem;
-//    ui->gridLayout->addWidget(item1,0,1,1,-1);
+    this->setWindowIcon(QIcon(":/logo.ico"));
+    this->setStyleSheet("QTreeWidget{background-color: rgba(255, 250, 250, 70%);}"
+                        "QTreeWidget::indicator:checked {image: url(./photo/5.png);}"
+                        "QTreeWidget::indicator:unchecked {image: url(./photo/4.png);}" );
     queryShareUser(false,NULL);
     ui->lineEdit->setEnabled(false);
     ui->pushButton_2->setEnabled(false);
@@ -36,6 +36,18 @@ void UseSoftWareForm::closeEvent(QCloseEvent *event)
     }
     emit winClose();
     event->accept();
+}
+void UseSoftWareForm::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    //draw background
+    QPixmap foreImg;
+    foreImg.load("./photo/4.jpg");
+    if (!foreImg.isNull())
+    {
+        painter.setOpacity(0.6);//透明度设置
+        painter.drawPixmap(0, 0,rect().width(),rect().height(), foreImg);
+    }
 }
 void UseSoftWareForm::on_pushButton_5_clicked()
 {
@@ -105,13 +117,13 @@ void UseSoftWareForm::shareUserInfoResultForTreeWidget(QString str)
         item->removeChild(item->child(0));
     }
     QTreeWidgetItem* macItem = new QTreeWidgetItem(item);
-    macItem->setText(0,userInfo.getMac());
+    macItem->setText(0,"mac:"+userInfo.getMac());
     QTreeWidgetItem* ipItem = new QTreeWidgetItem(item);
-    ipItem->setText(0,userInfo.getIp());
+    ipItem->setText(0,"ip:"+userInfo.getIp());
     QTreeWidgetItem* scoreItem = new QTreeWidgetItem(item);
-    scoreItem->setText(0,QString::number(userInfo.getScore()/10.0,'f',1));
+    scoreItem->setText(0,"信誉度:"+QString::number(userInfo.getScore()/10.0,'f',1));
     QTreeWidgetItem* moneyItem = new QTreeWidgetItem(item);
-    moneyItem->setText(0,QString::number(userInfo.getMoney())+" ether");
+    moneyItem->setText(0,"代币/小时:"+QString::number(userInfo.getMoney())+" ether");
     QTreeWidgetItem* softwareItem = new QTreeWidgetItem(item);
     softwareItem->setText(0,"共享软件列表");
     QList<int> list = userInfo.getSoftwareIndex();
@@ -121,9 +133,9 @@ void UseSoftWareForm::shareUserInfoResultForTreeWidget(QString str)
         QTreeWidgetItem* swItem = new QTreeWidgetItem(softwareItem);
         swItem->setText(0,s.name);
         QTreeWidgetItem* scoreItem = new QTreeWidgetItem(swItem);
-        scoreItem->setText(0,QString::number(s.score/10.0,'f',1));
+        scoreItem->setText(0,"评分:"+QString::number(s.score/10.0,'f',1));
         QTreeWidgetItem* dateItem = new QTreeWidgetItem(swItem);
-        dateItem->setText(0,s.name);
+        dateItem->setText(0,"共享日期:"+s.date);
     }
 }
 

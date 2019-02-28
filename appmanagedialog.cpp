@@ -1,13 +1,18 @@
 #include "appmanagedialog.h"
 #include "ui_appmanagedialog.h"
 #include <QMessageBox>
+#include <QGraphicsOpacityEffect>
 AppManageDialog::AppManageDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AppManageDialog)
 {
     ui->setupUi(this);
-    this->setStyleSheet("QTreeWidget{background-image: url(4.png)}"
-                            "QTreeWidget::item{height:50px;width:50px;}");
+    this->setWindowIcon(QIcon(":/logo.ico"));
+    this->setStyleSheet("QTreeWidget{background-color: rgba(255, 250, 250, 70%);}"
+                            "QTreeWidget::item{height:50px;width:50px;}"
+                        "QTreeWidget::indicator:checked {image: url(./photo/5.png);}"
+                        "QTreeWidget::indicator:unchecked {image: url(./photo/4.png);}" );
+
     ui->treeWidget->setColumnWidth(0,120);
     ui->treeWidget->setColumnWidth(1,120);
     ui->treeWidget->setColumnWidth(2,120);
@@ -93,7 +98,7 @@ void AppManageDialog::on_addButton_2_clicked()
         {
             QString name = ui->treeWidget->topLevelItem(i)->text(0).trimmed();
             QString start = ui->treeWidget->topLevelItem(i)->text(1).trimmed();
-            ParaUtil::writeFile(name+".exp","yifei","127.0.0.1",pass,start);
+            ParaUtil::writeFile(name+".exp","share","127.0.0.1",pass,start);
             StartAppThread *thread = new StartAppThread(name+".exp");
             thread->start();
             break;
@@ -103,6 +108,19 @@ void AppManageDialog::on_addButton_2_clicked()
 void AppManageDialog::closeEvent(QCloseEvent *)
 {
     emit winClose();
+}
+void AppManageDialog::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+    //draw background
+    QPixmap foreImg;
+    foreImg.load("./photo/3.jpg");
+    if (!foreImg.isNull())
+    {
+        painter.setOpacity(0.4);//透明度设置
+        painter.drawPixmap(0, 0,730,514, foreImg);
+     }
+
 }
 void AppManageDialog::getSoftwareResult(QString str)
 {

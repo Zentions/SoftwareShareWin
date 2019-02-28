@@ -9,7 +9,7 @@ ServerItem::ServerItem(QFrame *parent) :
     ui->setupUi(this);
     this->setAttribute(Qt::WA_TranslucentBackground);//设置窗口背景透明
     this->setWindowFlags(Qt::FramelessWindowHint);   //设置无边框窗口
-    //this->setStyleSheet("ServerItem{border: 2px solid #FF00FF; border-radius: 5px;};");
+    ui->listWidget->setStyleSheet("QListWidget{border:1px solid gray; color:black;background-color: rgba(255, 250, 250, 70%);}");
     ui->pushButton->setEnabled(false);
     ui->pushButton_2->setEnabled(false);
     ui->pushButton_3->setEnabled(false);
@@ -30,7 +30,7 @@ ServerItem::ServerItem(UserInfo userInfo,int index,QFrame *parent) :
     this->setAttribute(Qt::WA_TranslucentBackground);//设置窗口背景透明
     this->setWindowFlags(Qt::FramelessWindowHint);   //设置无边框窗口
     //this->setStyleSheet("ServerItem{border: 2px solid #FF00FF; border-radius: 5px;};");
-    ui->listWidget->setStyleSheet("QListWidget{border:1px solid gray; color:black;background-image: url(5.png)}"
+    ui->listWidget->setStyleSheet("QListWidget{border:1px solid gray; color:black;background-color: rgba(255, 250, 250, 70%);}"
                                    "QListWidget::Item{padding-top:10px; padding-bottom:10px; }"
                                    "QListWidget::Item:hover{background:skyblue; }"
                                    "QListWidget::item:selected{background:lightgray; color:red; }"
@@ -133,14 +133,7 @@ ServerItem::~ServerItem()
 {
     delete ui;
 }
-void Delay_MSec(unsigned int msec)
-{
-    QTime _Timer = QTime::currentTime().addMSecs(msec);
 
-    while( QTime::currentTime() < _Timer )
-
-    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-}
 void ServerItem::endUse(bool endByHand)
 {
     QDateTime time = QDateTime::currentDateTime();   //获取当前时间
@@ -179,7 +172,7 @@ void ServerItem::endStoreRecordResult(QString str)
     else
     {
         ui->label_8->setText("共享结束异常");
-        Delay_MSec(5000);
+        ParaUtil::Delay_MSec(5000);
         endUse(true);
     }
 }
@@ -219,7 +212,7 @@ void ServerItem::on_pushButton_3_clicked()
         QString index = list.last();
         software softw = userInfo.getUserSoftwares().value(index.toInt());
         opened.insert(index.toInt());
-        ParaUtil::writeFile(softw.name+".exp","yifei",userInfo.getIp(),userInfo.getPass(),softw.start);
+        ParaUtil::writeFile(softw.name+".exp","share",userInfo.getIp(),userInfo.getPass(),softw.start);
         StartAppThread *thread = new StartAppThread(softw.name+".exp");
         thread->start();
     }
@@ -227,7 +220,7 @@ void ServerItem::on_pushButton_3_clicked()
 void ServerItem::handleTimeout()
 {
     this->time++;
-    if(time % 2==0 && time !=0)
+    if(time % 60==0 && time !=0)
     {
         HttpUtil * http = new HttpUtil;
         QString req = "server_address="+userInfo.getAddress()+"&client_address="+ParaUtil::address+"&money="+QString::number(userInfo.getMoney())
@@ -279,10 +272,11 @@ void ServerItem::closeAllSoftware()
         {
             list.append(userInfo.getUserSoftwares().value(index).start);
         }
-        ParaUtil::writeCloseFile("close.exp","yifei",userInfo.getIp(),userInfo.getPass(),list);
+        ParaUtil::writeCloseFile("close.exp","share",userInfo.getIp(),userInfo.getPass(),list);
         StartAppThread *thread = new StartAppThread("close.exp");
         thread->start();
         MarkDialog *dialog = new MarkDialog(userInfo,opened);
+        dialog->setFixedSize(572,263);
         dialog->exec();
     }
 }

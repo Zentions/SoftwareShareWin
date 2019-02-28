@@ -66,6 +66,9 @@ private slots:
 
     void handleTimeout();
 
+protected:
+    void paintEvent(QPaintEvent *event);
+
 private:
     Ui::MainWindow *ui;
     QString ip;

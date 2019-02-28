@@ -21,6 +21,8 @@ class MarkDialog : public QDialog
 public:
     explicit MarkDialog(UserInfo user,QSet<int> indexs,QWidget *parent = 0);
     ~MarkDialog();
+    void sendRequest();
+
 
 private slots:
     void on_pushButton_clicked();
@@ -41,6 +43,7 @@ private:
     UserInfo user;
     QMap<int,MarkItem*> items;
     QList<int> list;
+    QString mark;
 };
 
 #endif // MARKDIALOG_H

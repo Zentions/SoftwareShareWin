@@ -95,3 +95,11 @@ void ParaUtil::writeCloseFile(QString fileName,QString name,QString ip,QString p
     file.flush();
     file.close();
 }
+void ParaUtil::Delay_MSec(unsigned int msec)
+{
+    QTime _Timer = QTime::currentTime().addMSecs(msec);
+
+    while( QTime::currentTime() < _Timer )
+
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}

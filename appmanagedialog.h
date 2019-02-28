@@ -7,10 +7,12 @@
 #include <QDialog>
 #include <QTreeWidgetItem>
 #include <QProcess>
+#include <QPainter>
 #include "httputil.h"
 #include "jsonutil.h"
 #include "startappthread.h"
 #include "parautil.h"
+
 namespace Ui {
 class AppManageDialog;
 }
@@ -56,6 +58,7 @@ signals:
 protected:
     void closeEvent(QCloseEvent *);
 
+    void paintEvent(QPaintEvent *event);
 private:
     Ui::AppManageDialog *ui;
     QString pass;

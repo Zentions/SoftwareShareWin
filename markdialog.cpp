@@ -7,6 +7,9 @@ MarkDialog::MarkDialog(UserInfo user,QSet<int> indexs,QWidget *parent) :
     ui(new Ui::MarkDialog)
 {
     ui->setupUi(this);
+    this->setWindowIcon(QIcon(":/logo.ico"));
+    setWindowFlags(windowFlags() & ~Qt::WindowCloseButtonHint);
+    setWindowTitle("评分");
     ui->pushButton->setStyleSheet("border:2px groove gray;border-radius:20px;");
     if(leftImage.load("./photo/left.png"))
     {
@@ -60,6 +63,7 @@ MarkDialog::MarkDialog(UserInfo user,QSet<int> indexs,QWidget *parent) :
             ui->gridLayout->addWidget(item2,2,0,-1,1);
         }
     }
+    mark= "";
 }
 
 MarkDialog::~MarkDialog()
@@ -143,7 +147,7 @@ void MarkDialog::on_pushButton_2_clicked()
 
 void MarkDialog::on_pushButton_3_clicked()
 {
-    QString mark="";
+    mark="";
     int i;
     for(i=0;i<list.size()-1;i++)
     {
@@ -165,14 +169,23 @@ void MarkDialog::on_pushButton_3_clicked()
     QString singleMark = QString::number(list.at(i))+":"+QString::number(soft_mark*10);
     mark+=singleMark;
     qDebug()<<mark;
+    sendRequest();
+}
+void MarkDialog::undateScoreResult(QString str)
+{
+     bool result = JsonUtil::ParseSimpleResult(str);
+     if(!result)
+     {
+        ParaUtil::Delay_MSec(5000);
+        sendRequest();
+     }
+}
+void MarkDialog::sendRequest()
+{
     HttpUtil * http = new HttpUtil;
     QString req = "server_address="+user.getAddress()+"&client_address="+ParaUtil::address+"&data="+mark;
     qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(undateScoreResult(QString)));
     http->sendRequest(ParaUtil::url+"undateScore",req,true);
     this->close();
-}
-void MarkDialog::undateScoreResult(QString)
-{
-
 }

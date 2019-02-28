@@ -51,6 +51,7 @@ signals:
 protected:
     void closeEvent(QCloseEvent *);
 
+    void paintEvent(QPaintEvent *event);
 private:
     void queryShareUser(bool byName,QString name);
     void queryShareUserInfo(QString address);

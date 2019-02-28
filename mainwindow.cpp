@@ -5,7 +5,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+
     ui->setupUi(this);
+   // setWindowOpacity(0.7) ;
+    //this->setAttribute(Qt::WA_WState_WindowOpacitySet);
+    this->setWindowIcon(QIcon(":/logo.ico"));
+    this->setWindowTitle("软件共享");
     ui->layoutWidget1->hide();
     ui->layoutWidget2->hide();
     ui->layoutWidget3->hide();
@@ -13,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit_2->setEchoMode(QLineEdit::Password);
     ui->lineEdit_3->setEchoMode(QLineEdit::Password);
     ui->lineEdit_4->setEchoMode(QLineEdit::Password);
+    ui->label->setStyleSheet("color:white;");
+    ui->label_2->setStyleSheet("color:white;");
     ui->label_7->setAlignment(Qt::AlignHCenter);
     ui->label_7->setStyleSheet("color:red;");
     ui->label_7->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -44,11 +51,14 @@ void MainWindow::on_pushButton_clicked()
 
    ParaUtil::address = ui->lineEdit->text();
    QString pass = ui->lineEdit_2->text();
-   HttpUtil * http0 = new HttpUtil;
-   QString req = "address="+ParaUtil::address+"&pass="+pass;
-   //qDebug()<<req;
-   connect(http0, SIGNAL(httpFinished(QString)), this, SLOT(loginResult(QString)));
-   http0->sendRequest(ParaUtil::url+"login",req,true);
+   if(pass!="" && ParaUtil::address!="")
+   {
+       HttpUtil * http0 = new HttpUtil;
+       QString req = "address="+ParaUtil::address+"&pass="+pass;
+       //qDebug()<<req;
+       connect(http0, SIGNAL(httpFinished(QString)), this, SLOT(loginResult(QString)));
+       http0->sendRequest(ParaUtil::url+"login",req,true);
+   }
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -196,6 +206,7 @@ void MainWindow::on_pushButton_6_clicked()
 void MainWindow::on_pushButton_3_clicked()
 {
     UseSoftWareForm *form = new UseSoftWareForm;
+    form->setFixedSize(972,675);
     form->show();
     connect(form, SIGNAL(winClose()), this, SLOT(winAppear()));
     this->hide();
@@ -206,6 +217,7 @@ void MainWindow::on_pushButton_10_clicked()
     //manage share app
     AppManageDialog *dialog = new AppManageDialog;
     connect(dialog, SIGNAL(winClose()), this, SLOT(winAppear()));
+    dialog->setFixedSize(730,514);
     dialog->show();
     this->hide();
 }
@@ -318,3 +330,35 @@ void MainWindow::handleTimeout()
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(unlockResult(QString)));
     http->sendRequest(ParaUtil::url+"unlock",req,true);
 }
+ void MainWindow::paintEvent(QPaintEvent *event)
+ {
+     Q_UNUSED(event);
+     QPainter painter(this);
+     //draw background
+     QPixmap foreImg;
+     foreImg.load("./photo/1.jpg");
+     if (!foreImg.isNull())
+     {
+         painter.setOpacity(0.8);//透明度设置
+         painter.drawPixmap(0, 0, foreImg);
+      }
+
+     // 设置画笔颜色
+     painter.setPen(Qt::white);
+     painter.setOpacity(1);
+     QFont font;
+     font.setFamily("Microsoft YaHei");
+     // 大小
+     font.setPointSize(20);
+     // 设置字符间距
+     font.setLetterSpacing(QFont::AbsoluteSpacing, 20);
+     // 使用字体
+     painter.setFont(font);
+     // 获取字体信息
+     QFontInfo info = painter.fontInfo();
+     info.family();
+     info.italic();
+     // 绘制区域为当前界面的整个区域（默认-左上角开始）
+     painter.drawText(QRect(0,0,446,100), Qt::AlignCenter, QStringLiteral("区块链助力共享"));
+
+ }

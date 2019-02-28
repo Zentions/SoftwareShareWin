@@ -2,7 +2,8 @@
 #define PARAUTIL_H
 #include <QNetworkInterface>
 #include <QFile>
-
+#include <QTime>
+#include <QCoreApplication>
 class ParaUtil
 {
 public:
@@ -19,6 +20,8 @@ public:
     static void writeFile(QString fileName,QString name,QString ip,QString pass,QString app);
 
     static void writeCloseFile(QString fileName,QString name,QString ip,QString pass,QStringList app);
+
+    static void Delay_MSec(unsigned int msec);
 
 };
 
