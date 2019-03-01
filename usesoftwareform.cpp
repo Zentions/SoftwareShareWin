@@ -117,13 +117,17 @@ void UseSoftWareForm::shareUserInfoResultForTreeWidget(QString str)
         item->removeChild(item->child(0));
     }
     QTreeWidgetItem* macItem = new QTreeWidgetItem(item);
-    macItem->setText(0,"mac:"+userInfo.getMac());
+    macItem->setText(0,"MAC : "+userInfo.getMac());
     QTreeWidgetItem* ipItem = new QTreeWidgetItem(item);
-    ipItem->setText(0,"ip:"+userInfo.getIp());
+    ipItem->setText(0,"IP : "+userInfo.getIp());
+    QTreeWidgetItem* cpuItem = new QTreeWidgetItem(item);
+    cpuItem->setText(0,"CPU : "+userInfo.getCpu());
+    QTreeWidgetItem* memItem = new QTreeWidgetItem(item);
+    memItem->setText(0,"MemTotal : "+userInfo.getMemory());
     QTreeWidgetItem* scoreItem = new QTreeWidgetItem(item);
-    scoreItem->setText(0,"信誉度:"+QString::number(userInfo.getScore()/10.0,'f',1));
+    scoreItem->setText(0,"信誉度 : "+QString::number(userInfo.getScore()/10.0,'f',1));
     QTreeWidgetItem* moneyItem = new QTreeWidgetItem(item);
-    moneyItem->setText(0,"代币/小时:"+QString::number(userInfo.getMoney())+" ether");
+    moneyItem->setText(0,"代币/小时 : "+QString::number(userInfo.getMoney())+" ether");
     QTreeWidgetItem* softwareItem = new QTreeWidgetItem(item);
     softwareItem->setText(0,"共享软件列表");
     QList<int> list = userInfo.getSoftwareIndex();

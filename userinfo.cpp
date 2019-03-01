@@ -94,3 +94,19 @@ void UserInfo::setMoney(double money)
 {
     this->money = money;
 }
+void UserInfo::setCpu(QString cpu)
+{
+    this->cpu = cpu;
+}
+void UserInfo::setMemory(QString mem)
+{
+    this->memory = mem;
+}
+QString UserInfo::getCpu()
+{
+    return cpu;
+}
+QString UserInfo::getMemory()
+{
+    return this->memory;
+}

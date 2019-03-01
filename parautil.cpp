@@ -6,6 +6,11 @@ ParaUtil::ParaUtil()
 }
 QString ParaUtil::address = "0";
 QString ParaUtil::url = "http://127.0.0.1:3000/";
+
+QString ParaUtil::cpu="null";
+
+QString ParaUtil::memory_size="null";
+
 QList<QHostAddress> ParaUtil::get_localmachine_ip()
 {
     QString ipAddress;
@@ -102,4 +107,46 @@ void ParaUtil::Delay_MSec(unsigned int msec)
     while( QTime::currentTime() < _Timer )
 
     QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+}
+int ParaUtil::calculateMoneyPerHour()
+{
+    QProcess process;
+    process.start("getconf LONG_BIT");
+    process.waitForFinished();
+    QByteArray output = process.readAllStandardOutput();
+    output = output.trimmed();
+    system("cat /proc/cpuinfo| grep \"processor\"| wc -l  >>gzb111.txt");
+    system("cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c  >>gzb111.txt");
+    system("cat /proc/meminfo >>gzb111.txt");
+    QFile file("gzb111.txt");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) return 0;
+    QTextStream in(&file);
+    int num = in.readLine().trimmed().toInt();
+    QString name = in.readLine().trimmed();
+    QString size = in.readLine().trimmed();
+    file.close();
+    file.remove();
+    QStringList namelist = name.split(" ");
+    namelist.removeFirst();
+    ParaUtil::cpu = namelist.join(' ').trimmed();
+    QString hz = namelist.last();
+    int index = hz.indexOf("GHz");
+    double realHz = hz.left(index).toDouble();
+    QStringList sizelist = size.split(" ");
+    sizelist.removeLast();
+    ParaUtil::memory_size = sizelist.last()+" kB";
+    int memory = sizelist.last().toInt();
+    int money = 0;
+    if(output.toInt()<=32)money+=1;
+    else money+=2;
+    if(num<=2) money+=1;
+    else if(num>2 && num<=4) money+=2;
+    else money+=3;
+    if(realHz<2.5) money+=1;
+    else if(realHz>=2.5 && realHz<3) money+=2;
+    else money+=3;
+    if(memory<=4526860) money+=1;
+    else if(memory>4526860 && memory <=8526860) money+=2;
+    else money+=3;
+    return money;
 }

@@ -20,6 +20,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->lineEdit_4->setEchoMode(QLineEdit::Password);
     ui->label->setStyleSheet("color:white;");
     ui->label_2->setStyleSheet("color:white;");
+    ui->label_3->setStyleSheet("color:white;");
+    ui->label_4->setStyleSheet("color:white;");
+    ui->label_8->setStyleSheet("color:white;");
+    ui->label_11->setStyleSheet("color:white;");
+    ui->label_12->setStyleSheet("color:white;");
     ui->label_7->setAlignment(Qt::AlignHCenter);
     ui->label_7->setStyleSheet("color:red;");
     ui->label_7->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -27,13 +32,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label_5->setStyleSheet("color:red;");
     ui->label_5->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->label_6->setAlignment(Qt::AlignHCenter);
-    ui->label_6->setStyleSheet("color:blue;");
+    ui->label_6->setStyleSheet("color:white;");
     ui->label_6->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->label_8->setAlignment(Qt::AlignHCenter);
     ui->label_8->setStyleSheet("color:red;");
     ui->label_8->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->label_12->setAlignment(Qt::AlignHCenter);
-    ui->label_12->setStyleSheet("color:blue;");
+    ui->label_12->setStyleSheet("color:white;");
     ui->label_12->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->pushButton_12->setEnabled(false);
     isShare = false;
@@ -128,7 +133,7 @@ void MainWindow::loginResult(QString str)
             this->ip = ui->comboBox->currentText();
             ui->layoutWidget3->show();
 
-            ui->label_12->setStyleSheet("color:blue;");
+            ui->label_12->setStyleSheet("color:white;");
             ui->label_12->setText("开启分享");
             ui->pushButton_11->setEnabled(false);
             ui->pushButton_12->setEnabled(true);
@@ -145,7 +150,7 @@ void MainWindow::startServiecResult(QString str)
     bool result = JsonUtil::ParseSimpleResult(str);
     if(result)
     {
-        ui->label_12->setStyleSheet("color:blue;");
+        ui->label_12->setStyleSheet("color:white;");
         ui->label_12->setText("开启分享");
         ui->pushButton_11->setEnabled(false);
         ui->pushButton_12->setEnabled(true);
@@ -163,7 +168,7 @@ void MainWindow::endServiecResult(QString str)
     int result = JsonUtil::ParseEndServiceResult(str);
     if(result==1)
     {
-        ui->label_12->setStyleSheet("color:blue;");
+        ui->label_12->setStyleSheet("color:white;");
         ui->label_12->setText("结束分享");
         ui->pushButton_12->setEnabled(false);
         ui->pushButton_11->setEnabled(true);
@@ -247,9 +252,12 @@ void MainWindow::on_comboBox_currentTextChanged(const QString &arg1)
 void MainWindow::on_pushButton_11_clicked()
 {
     //start share
+    int money = ParaUtil::calculateMoneyPerHour();
+    if(money==0) return;
     QString mac = ParaUtil::gethostMac();
     HttpUtil * http = new HttpUtil;
-    QString req = "address="+ParaUtil::address+"&mac="+mac+"&ip="+ip+"&moneyPerHour=5";
+    QString req = "address="+ParaUtil::address+"&mac="+mac+"&ip="+ip+"&moneyPerHour="
+            +QString::number(money)+"&cpu="+ParaUtil::cpu+"&size="+ParaUtil::memory_size;
     //qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(startServiecResult(QString)));
     http->sendRequest(ParaUtil::url+"startService",req,true);
@@ -295,7 +303,7 @@ void MainWindow::on_pushButton_7_clicked()
     //register
     HttpUtil * http = new HttpUtil;
     QString req = "address="+ParaUtil::address;
-    //qDebug()<<req;
+    qDebug()<<req;
     connect(http, SIGNAL(httpFinished(QString)), this, SLOT(registerResult(QString)));
     http->sendRequest(ParaUtil::url+"register",req,true);
 }

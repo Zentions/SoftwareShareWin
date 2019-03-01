@@ -217,7 +217,7 @@ void AppManageDialog::modifyPassResult(QString str)
     bool success = JsonUtil::ParseSimpleResult(str);
     if(success)
     {
-        ui->label_5->setStyleSheet("color:blue;");
+        ui->label_5->setStyleSheet("color:white;");
         ui->label_5->setText("密码更改成功");
     }
     else

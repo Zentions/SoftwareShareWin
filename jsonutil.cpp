@@ -177,14 +177,16 @@ UserInfo JsonUtil::ParseshareUserInfoResult(QString str)
             QJsonValue passVal = object.value("pass");
             QJsonValue scoreVal = object.value("score");
             QJsonValue moneyVal = object.value("money");
+            QJsonValue cpuVal = object.value("cpu");
+            QJsonValue menVal = object.value("size");
             userInfo.setAddress(addressVal.toString());
             userInfo.setIP(ipVal.toString());
             userInfo.setMac(macVal.toString());
             userInfo.setPass(passVal.toString());
             userInfo.setScore(scoreVal.toString().toInt());
             userInfo.setMoney(moneyVal.toString().toDouble());
-            qDebug()<<userInfo.getScore();
-            //array
+            userInfo.setCpu(cpuVal.toString());
+            userInfo.setMemory(menVal.toString());
             QJsonValue softwareValue = object.value("sws");
             QJsonValue softwareVal = softwareValue.toObject().value("sw");
             QJsonArray array = softwareVal.toArray();

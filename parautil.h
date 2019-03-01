@@ -4,10 +4,15 @@
 #include <QFile>
 #include <QTime>
 #include <QCoreApplication>
+#include <QProcess>
 class ParaUtil
 {
 public:
     ParaUtil();
+
+    static QString cpu;
+
+    static QString memory_size;
 
     static QString address;
 
@@ -22,6 +27,8 @@ public:
     static void writeCloseFile(QString fileName,QString name,QString ip,QString pass,QStringList app);
 
     static void Delay_MSec(unsigned int msec);
+
+    static int calculateMoneyPerHour();
 
 };
 

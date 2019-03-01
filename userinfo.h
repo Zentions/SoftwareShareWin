@@ -21,6 +21,8 @@ private:
     QString ip;
     QString pass;
     double money;
+    QString cpu;
+    QString memory;
     int score;
     int start_timestap;
     QMap<int,software> UserSoftwares;
@@ -47,6 +49,10 @@ public:
     int getSWLen();
     double getMoney();
     void setMoney(double);
+    void setCpu(QString);
+    void setMemory(QString);
+    QString getCpu();
+    QString getMemory();
     QList<int> getSoftwareIndex();
 };
 
